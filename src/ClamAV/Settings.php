@@ -14,6 +14,7 @@ class Settings {
 	 * @return void
 	 */
 	public function addAdminMenu() {
+        // Adds settings page
 		add_menu_page(
 			__( 'ClamAV Scanner Einstellungen', Config::LANGUAGE_DOMAIN ),
 			__( 'ClamAV Einstellungen', Config::LANGUAGE_DOMAIN ),
