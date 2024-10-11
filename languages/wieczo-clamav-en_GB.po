@@ -1,0 +1,132 @@
+# Copyright (C) 2024 Thomas Wieczorek
+# This file is distributed under the MIT License.
+msgid ""
+msgstr ""
+"Project-Id-Version: Wieczo's Virus Scanner 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wieczo-clamav\n"
+"POT-Creation-Date: 2024-10-11T00:48:23+00:00\n"
+"PO-Revision-Date: 2024-10-11 02:56+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.5\n"
+"X-Domain: wieczo-clamav\n"
+
+#. Plugin Name of the plugin
+#: wieczo-clamav.php
+msgid "Wieczo's Virus Scanner"
+msgstr "Wieczo's Virus Scanner"
+
+#. Plugin URI of the plugin
+#: wieczo-clamav.php
+msgid "https://wieczo.net/wieczo-clamav"
+msgstr "https://wieczo.net/wieczo-clamav"
+
+#. Description of the plugin
+#: wieczo-clamav.php
+msgid "Untersuche hochgeladene Dateien auf Viren und Malware mit ClamAV."
+msgstr "Scan uploaded files for viruses and malware with ClamAV."
+
+#. Author of the plugin
+#: wieczo-clamav.php
+msgid "Thomas Wieczorek"
+msgstr "Thomas Wieczorek"
+
+#. Author URI of the plugin
+#: wieczo-clamav.php
+msgid "https://wieczo.net"
+msgstr "https://wieczo.net"
+
+#: src/ClamAV/ClamAV.php:28
+msgid "Konnte keine Verbindung zum Virenscanner herstellen."
+msgstr "Could not establish a connection to the virus scanner."
+
+#: src/ClamAV/ClamAV.php:39
+msgid "Konnte die hochgeladene Datei nicht lesen."
+msgstr "Could not read the uploaded file."
+
+#: src/ClamAV/ClamAV.php:61
+msgid ""
+"Die hochgeladene Datei \"%s\" ist mit einem Virus infiziert und wurde "
+"abgelehnt."
+msgstr ""
+"The uploaded file \"%s\" is infected with a virus and has been rejected."
+
+#: src/ClamAV/Settings.php:20 src/ClamAV/Settings.php:48
+msgid "ClamAV Scanner Einstellungen"
+msgstr "ClamAV Scanner Settings"
+
+#: src/ClamAV/Settings.php:21 src/ClamAV/Settings.php:89
+msgid "ClamAV Einstellungen"
+msgstr "ClamAV Settings"
+
+#: src/ClamAV/Settings.php:44 src/ClamAV/Settings.php:169
+msgid "Du hast keine Berechtigung für diesen Vorgang."
+msgstr "You do not have permission for this action."
+
+#: src/ClamAV/Settings.php:70
+msgid "Hostname von ClamAV"
+msgstr "Hostname of ClamAV"
+
+#: src/ClamAV/Settings.php:71 src/ClamAV/Settings.php:125
+msgid ""
+"Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn "
+"es lokal läuft, z.B. localhost"
+msgstr ""
+"If it's a separate Docker container, e.g., clamav. If it's running locally, "
+"e.g., localhost"
+
+#: src/ClamAV/Settings.php:76
+msgid "Port von ClamAV"
+msgstr "Port of ClamAV"
+
+#: src/ClamAV/Settings.php:77 src/ClamAV/Settings.php:133
+msgid "Der Standardwert ist 3310"
+msgstr "The default value is 3310"
+
+#: src/ClamAV/Settings.php:82
+msgid "Nach wie viel Sekunden soll die Verbindung abgebrochen werden"
+msgstr "After how many seconds should the connection timeout?"
+
+#: src/ClamAV/Settings.php:83 src/ClamAV/Settings.php:141
+msgid "Der Standartwert ist 30 Sekunden"
+msgstr "The default value is 30 seconds"
+
+#: src/ClamAV/Settings.php:95
+msgid "ClamAV Host"
+msgstr "ClamAV Host"
+
+#: src/ClamAV/Settings.php:102
+msgid "ClamAV Port"
+msgstr "ClamAV Port"
+
+#: src/ClamAV/Settings.php:109
+msgid "Timeout"
+msgstr "Timeout"
+
+#: src/ClamAV/Settings.php:118
+msgid "Hier findest du die ClamAV Verbindungsoptionen"
+msgstr "Here are the ClamAV connection options"
+
+#: src/ClamAV/Settings.php:157
+msgid "Wähle eine Datei zum Scannen aus:"
+msgstr "Select a file to scan:"
+
+#: src/ClamAV/Settings.php:160
+msgid "Datei scannen"
+msgstr "Scan File"
+
+#: src/ClamAV/Settings.php:172
+msgid "Ungültiger Sicherheits-Token"
+msgstr "Invalid security token"
+
+#: src/ClamAV/Settings.php:199
+msgid "Fehler beim Hochladen der Datei: "
+msgstr "Error uploading the file: "
+
+#: src/ClamAV/Settings.php:202
+msgid "Keine Datei hochgeladen."
+msgstr "No file uploaded."

@@ -17,8 +17,8 @@ class Settings {
 	public function addAdminMenu() {
 		// Adds settings page
 		add_menu_page(
-			__( 'ClamAV Scanner Einstellungen', Config::LANGUAGE_DOMAIN ),
-			__( 'ClamAV Einstellungen', Config::LANGUAGE_DOMAIN ),
+			__( 'ClamAV Scanner Einstellungen', 'wieczo-clamav' ),
+			__( 'ClamAV Einstellungen', 'wieczo-clamav' ),
 			'manage_options',
 			'wieczo-clamav',
 			[ $this, 'showSettingsPage' ],
@@ -27,8 +27,8 @@ class Settings {
 
 		add_submenu_page(
 			'wieczo-clamav',    // slug of the main menu
-            __( 'ClamAV Datei-Scanner', Config::LANGUAGE_DOMAIN ),
-			__( 'ClamAV Scanner', Config::LANGUAGE_DOMAIN ),
+            __( 'ClamAV Datei-Scanner', 'wieczo-clamav' ),
+			__( 'ClamAV Scanner', 'wieczo-clamav' ),
 			'manage_options',
 			'wieczo-clamav-test',    // Slug of the submenu
 			array($this, 'showTestPage') // Callback for the page
@@ -41,11 +41,11 @@ class Settings {
 	 */
 	public function showSettingsPage() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __('Du hast keine Berechtigung für diesen Vorgang.', Config::LANGUAGE_DOMAIN) );
+			wp_die( __('Du hast keine Berechtigung für diesen Vorgang.', 'wieczo-clamav') );
 		}
 		?>
         <div class="wrap">
-            <h1><?php __( 'ClamAV Scanner Einstellungen', Config::LANGUAGE_DOMAIN ) ?></h1>
+            <h1><?php __( 'ClamAV Scanner Einstellungen', 'wieczo-clamav' ) ?></h1>
             <form method="post" action="options.php">
 				<?php
 				// Render settings fields
@@ -67,46 +67,46 @@ class Settings {
 		// Define the settings
 		register_setting( 'wieczo_clamav_options_group', 'clamav_host', [
 			'type'        => 'string',
-			'label'       => __( 'Hostname von ClamAV', Config::LANGUAGE_DOMAIN ),
-			'description' => __( 'Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn es lokal läuft, z.B. localhost', Config::LANGUAGE_DOMAIN ),
+			'label'       => __( 'Hostname von ClamAV', 'wieczo-clamav' ),
+			'description' => __( 'Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn es lokal läuft, z.B. localhost', 'wieczo-clamav' ),
 			'default'     => Config::DEFAULT_HOST,
 		] );
 		register_setting( 'wieczo_clamav_options_group', 'clamav_port', [
 			'type'        => 'integer',
-			'label'       => __( 'Port von ClamAV', Config::LANGUAGE_DOMAIN ),
-			'description' => __( 'Der Standardwert ist 3310', Config::LANGUAGE_DOMAIN ),
+			'label'       => __( 'Port von ClamAV', 'wieczo-clamav' ),
+			'description' => __( 'Der Standardwert ist 3310', 'wieczo-clamav' ),
 			'default'     => Config::DEFAULT_PORT,
 		] );
 		register_setting( 'wieczo_clamav_options_group', 'clamav_timeout', [
 			'type'        => 'integer',
-			'label'       => __( 'Nach wie viel Sekunden soll die Verbindung abgebrochen werden', Config::LANGUAGE_DOMAIN ),
-			'description' => __( 'Der Standartwert ist 30 Sekunden', Config::LANGUAGE_DOMAIN ),
+			'label'       => __( 'Nach wie viel Sekunden soll die Verbindung abgebrochen werden', 'wieczo-clamav' ),
+			'description' => __( 'Der Standartwert ist 30 Sekunden', 'wieczo-clamav' ),
 			'default'     => Config::DEFAULT_TIMEOUT,
 		] );
 
 		add_settings_section(
 			'wieczo_clamav_section',
-			__( 'ClamAV Einstellungen', Config::LANGUAGE_DOMAIN ),
+			__( 'ClamAV Einstellungen', 'wieczo-clamav' ),
 			[ $this, 'settingsCB' ],
 			'wieczo_clamav_settings'
 		);
 		add_settings_field(
 			'clamav_host',
-			__( 'ClamAV Host', Config::LANGUAGE_DOMAIN ),
+			__( 'ClamAV Host', 'wieczo-clamav' ),
 			[ $this, 'renderSettingHost' ],
 			'wieczo_clamav_settings',
 			'wieczo_clamav_section'
 		);
 		add_settings_field(
 			'clamav_port',
-			__( 'ClamAV Port', Config::LANGUAGE_DOMAIN ),
+			__( 'ClamAV Port', 'wieczo-clamav' ),
 			[ $this, 'renderSettingPort' ],
 			'wieczo_clamav_settings',
 			'wieczo_clamav_section'
 		);
 		add_settings_field(
 			'clamav_timeout',
-			__( 'Timeout', Config::LANGUAGE_DOMAIN ),
+			__( 'Timeout', 'wieczo-clamav' ),
 			[ $this, 'renderSettingTimeout' ],
 			'wieczo_clamav_settings',
 			'wieczo_clamav_section'
@@ -115,14 +115,14 @@ class Settings {
 
 
 	public function settingsCB() {
-		echo __( 'Hier findest du die ClamAV Verbindungsoptionen', Config::LANGUAGE_DOMAIN );
+		echo __( 'Hier findest du die ClamAV Verbindungsoptionen', 'wieczo-clamav' );
 	}
 
 	public function renderSettingHost() {
 		$host = esc_attr( get_option( 'clamav_host' ) );
 		?>
         <input type="text" name="clamav_host" value="<?php echo $host; ?>"/>
-        <p class="description"><?php __( 'Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn es lokal läuft, z.B. localhost', Config::LANGUAGE_DOMAIN ) ?></p>
+        <p class="description"><?php __( 'Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn es lokal läuft, z.B. localhost', 'wieczo-clamav' ) ?></p>
 		<?php
 	}
 
@@ -130,7 +130,7 @@ class Settings {
 		$port = (int) get_option( 'clamav_port' );
 		?>
         <input type="text" name="clamav_port" value="<?php echo $port; ?>"/>
-        <p class="description"><?php __( 'Der Standardwert ist 3310', Config::LANGUAGE_DOMAIN ) ?></p>
+        <p class="description"><?php __( 'Der Standardwert ist 3310', 'wieczo-clamav' ) ?></p>
 		<?php
 	}
 
@@ -138,7 +138,7 @@ class Settings {
 		$timeout = (int) get_option( 'clamav_timeout' );
 		?>
         <input type="text" name="clamav_timeout" value="<?php echo $timeout; ?>"/>
-        <p class="description"><?php __( 'Der Standartwert ist 30 Sekunden', Config::LANGUAGE_DOMAIN ) ?></p>
+        <p class="description"><?php __( 'Der Standartwert ist 30 Sekunden', 'wieczo-clamav' ) ?></p>
 		<?php
 	}
 
@@ -150,14 +150,14 @@ class Settings {
 		?>
 
         <div class="wrap">
-            <h1><?php __( 'ClamAV Datei-Scanner', Config::LANGUAGE_DOMAIN ) ?></h1>
+            <h1><?php __( 'ClamAV Datei-Scanner', 'wieczo-clamav' ) ?></h1>
             <form method="post" enctype="multipart/form-data" action="<?php echo admin_url( 'admin-post.php' ); ?>">
                 <input type="hidden" name="action" value="wieczo_clamav_scan_file">
 	            <?php wp_nonce_field('clamav_scan_file_action', 'clamav_scan_file_nonce'); ?>
-                <label for="clamav-file-upload"><?php __( 'Wähle eine Datei zum Scannen aus:', Config::LANGUAGE_DOMAIN ) ?></label>
+                <label for="clamav-file-upload"><?php __( 'Wähle eine Datei zum Scannen aus:', 'wieczo-clamav' ) ?></label>
                 <input type="file" name="clamav_file" id="clamav-file-upload" required>
 
-				<?php submit_button( __( 'Datei scannen', Config::LANGUAGE_DOMAIN ) ); ?>
+				<?php submit_button( __( 'Datei scannen', 'wieczo-clamav' ) ); ?>
             </form>
         </div>
 		<?php
@@ -166,10 +166,10 @@ class Settings {
 	public function scanUploadedFile() {
 		// Check policies.
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __('Du hast keine Berechtigung für diesen Vorgang.', Config::LANGUAGE_DOMAIN) );
+			wp_die( __('Du hast keine Berechtigung für diesen Vorgang.', 'wieczo-clamav') );
 		}
 		if (!isset($_POST['clamav_scan_file_nonce']) || !wp_verify_nonce($_POST['clamav_scan_file_nonce'], 'clamav_scan_file_action')) {
-			wp_die( __('Ungültiger Sicherheits-Token', Config::LANGUAGE_DOMAIN) );
+			wp_die( __('Ungültiger Sicherheits-Token', 'wieczo-clamav') );
 		}
 		// Prüfen, ob eine Datei hochgeladen wurde
 		if ( isset( $_FILES['clamav_file'] ) && $_FILES['clamav_file']['size'] > 0 ) {
@@ -196,10 +196,10 @@ class Settings {
 				exit;
 			} else {
 				// Fehler beim Hochladen
-				wp_die( __('Fehler beim Hochladen der Datei: ', Config::LANGUAGE_DOMAIN) . esc_html( $movefile['error'] ) );
+				wp_die( __('Fehler beim Hochladen der Datei: ', 'wieczo-clamav') . esc_html( $movefile['error'] ) );
 			}
 		} else {
-			wp_die( __('Keine Datei hochgeladen.', Config::LANGUAGE_DOMAIN ) );
+			wp_die( __('Keine Datei hochgeladen.', 'wieczo-clamav' ) );
 		}
 	}
 }

@@ -25,7 +25,7 @@ class ClamAV {
 	  $socket = fsockopen( $this->host, $this->port, $errorCode, $errorMessage, $this->timeout );
 
 	  if ( ! $socket ) {
-		  $file['error'] = __( 'Konnte keine Verbindung zum Virenscanner herstellen.', Config::LANGUAGE_DOMAIN );
+		  $file['error'] = __( 'Konnte keine Verbindung zum Virenscanner herstellen.', 'wieczo-clamav' );
 
 		  return $file;
 	  }
@@ -36,7 +36,7 @@ class ClamAV {
 	  $handle = fopen( $filepath, "rb" );
 	  if ( ! $handle ) {
 		  fclose( $socket );
-		  $file['error'] = __( 'Konnte die hochgeladene Datei nicht lesen.', Config::LANGUAGE_DOMAIN );
+		  $file['error'] = __( 'Konnte die hochgeladene Datei nicht lesen.', 'wieczo-clamav' );
 
 		  return $file;
 	  }
@@ -58,7 +58,7 @@ class ClamAV {
 
 	  // Überprüfen, ob ein Virus gefunden wurde
 	  if ( str_contains( $response, 'FOUND' ) ) {
-		  $file['error'] = sprintf( __( 'Die hochgeladene Datei "%s" ist mit einem Virus infiziert und wurde abgelehnt.', Config::LANGUAGE_DOMAIN ), $filename );
+		  $file['error'] = sprintf( __( 'Die hochgeladene Datei "%s" ist mit einem Virus infiziert und wurde abgelehnt.', 'wieczo-clamav' ), $filename );
 	  }
 
 	  return $file;
