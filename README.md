@@ -99,3 +99,7 @@ Once the plugin is activated, it automatically scans all uploads for viruses.
 
 * 1.0.0 
   * Initial release.
+
+* 1.1.0
+  * Adds uninstall.php
+  * Adds table to log virus findings
