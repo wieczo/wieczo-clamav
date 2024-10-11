@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Prevent direct access
 }
 
-use Wieczo\WordPress\Plugins\ClamAV\ClamAV;
+use Wieczo\WordPress\Plugins\ClamAV\Scanner;
 use Wieczo\WordPress\Plugins\ClamAV\Enqueuer;
 use Wieczo\WordPress\Plugins\ClamAV\Settings;
 use Wieczo\WordPress\Plugins\ClamAV\Table;
@@ -28,7 +28,7 @@ $tableUpdates = new Table();
 register_activation_hook( __FILE__, [ $tableUpdates, 'defineTable' ] );
 register_deactivation_hook( __FILE__, [ $tableUpdates, 'dropTable' ] );
 // Initialize Scanner for handling uploaded files
-$clamAV = new ClamAV();
+$clamAV = new Scanner();
 
 add_filter( 'wp_handle_upload_prefilter', [ $clamAV, 'scanFile' ] );
 

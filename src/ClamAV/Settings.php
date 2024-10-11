@@ -190,7 +190,7 @@ class Settings {
 			$uploaded_file = wp_unslash( $_FILES['clamav_file'] );
 
 			// Validate file upload status
-			if ( $_FILES['clamav_file']['error'] !== UPLOAD_ERR_OK ) {
+			if ( isset( $_FILES['clamav_file']['error'] ) && $_FILES['clamav_file']['error'] !== UPLOAD_ERR_OK ) {
 				wp_die( esc_html( __( 'Fehler beim Hochladen der Datei.', 'wieczos-virus-scanner' ) ) );
 			}
 			// Sanitize the filename
@@ -205,7 +205,7 @@ class Settings {
 					'tmp_name' => $movefile['file'],
 					'name'     => basename( $movefile['file'] ),
 				];
-				$scanner   = new ClamAV();
+				$scanner   = new Scanner();
 				$scanner->scanFile( $fileArray );
 
 				// Show scan results
