@@ -143,7 +143,11 @@ class Settings {
 	}
 
 	public function showTestPage() {
-		$scanResult = isset( $_GET['scan_result'] ) ? urldecode( wp_unslash( $_GET['scan_result'] ) ) : null;
+		$scanResult = isset( $_GET['scan_result'] ) ? urldecode( sanitize_text_field( wp_unslash( $_GET['scan_result'] ) ) ) : null;
+		// Check only the nonce when it is set, no need to test it on a normal page call.
+		if ( isset( $_GET['_wpnonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'file_check_nonce' ) ) {
+			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token1', 'wieczo-clamav' ) ) );
+		}
 		if ( $scanResult ) {
 			echo '<div class="notice notice-success"><p><strong>Scan Ergebnis:</strong> ' . esc_html( $scanResult ) . '</p></div>';
 		}
@@ -169,23 +173,20 @@ class Settings {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html( __( 'Du hast keine Berechtigung für diesen Vorgang.', 'wieczo-clamav' ) ) );
 		}
-		if ( ! isset( $_POST['clamav_scan_file_nonce'] ) || ! wp_verify_nonce( wp_unslash( $_POST['clamav_scan_file_nonce'] ), 'clamav_scan_file_action' ) ) {
-			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token', 'wieczo-clamav' ) ) );
+		if ( ! isset( $_POST['clamav_scan_file_nonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['clamav_scan_file_nonce'] ) ), 'clamav_scan_file_action' ) ) {
+			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token2', 'wieczo-clamav' ) ) );
 		}
-		// Prüfen, ob eine Datei hochgeladen wurde
+		// Check if a file was uploaded
 		if ( isset( $_FILES['clamav_file'] ) && isset( $_FILES['clamav_file']['size'] ) && $_FILES['clamav_file']['size'] > 0 ) {
-            // phpcs:ignore
+			// phpcs:ignore
 			$uploaded_file = $_FILES['clamav_file'];
 
-			// Validieren und Datei speichern
+			// Validate and save file
 			$upload_overrides = array( 'test_form' => false );
 			$movefile         = wp_handle_upload( $uploaded_file, $upload_overrides );
 
 			if ( $movefile && ! isset( $movefile['error'] ) ) {
-				// Datei erfolgreich hochgeladen
-				$file_path = $movefile['file'];
-
-				// Hier die ClamAV-Integration vornehmen
+				// ClamAV Scanner Check
 				$fileArray = [
 					'tmp_name' => $movefile['file'],
 					'name'     => basename( $movefile['file'] ),
@@ -193,11 +194,16 @@ class Settings {
 				$scanner   = new ClamAV();
 				$scanner->scanFile( $fileArray );
 
-				// Zeige Scan-Ergebnis
-				wp_redirect( admin_url( 'admin.php?page=wieczo-clamav-test&scan_result=' . urlencode( $fileArray['error'] ?? 'Alles in Ordnung' ) ) );
+				// Show scan results
+				$nonce           = wp_create_nonce( 'file_check_nonce' );
+				$scan_result_url = add_query_arg( [
+					'scan_result' => urlencode( urlencode( $fileArray['error'] ?? 'OK' ) ),
+					'_wpnonce'    => $nonce,
+				], admin_url( 'admin.php?page=wieczo-clamav-test' ) );
+				wp_redirect( $scan_result_url );
 				exit;
 			} else {
-				// Fehler beim Hochladen
+				// Error while uploading
 				wp_die( esc_html( __( 'Fehler beim Hochladen der Datei: ', 'wieczo-clamav' ) . esc_html( $movefile['error'] ) ) );
 			}
 		} else {
