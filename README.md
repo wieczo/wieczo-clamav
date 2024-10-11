@@ -103,3 +103,8 @@ Once the plugin is activated, it automatically scans all uploads for viruses.
 * 1.1.0
   * Adds uninstall.php
   * Adds table to log virus findings
+
+* 1.2.0
+  * Allows to scan the whole WordPress installation for viruses
+  * Logs all errors
+  * Enables to filter the logs by error type
