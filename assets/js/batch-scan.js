@@ -23,19 +23,21 @@ jQuery(document).ready(function ($) {
         $('#progress-text').text(sprintf(xOfYFilesScanned, processedFiles, totalFiles));
     }
 
+    let infectedFiles = [];
     // Function to scan the next batch
     function scanNextBatch() {
         $.post(batchScanData.ajaxUrl, {
             action: 'batchScan',
             offset: offset,
-            security: batchScanData.nonce
+            security: batchScanData.nonce,
+            infectedFiles: infectedFiles
         }, function (response) {
             if (response.success) {
                 offset = response.data.offset || 0;
 
                 // Update progress
                 updateProgressBar(response.data.processedFiles);
-
+                infectedFiles = response.data.infectedFiles;
                 if (response.data.finished) {
                     const infected = response.data.infectedFiles.length;
                     console.error(response.data.infectedFiles);

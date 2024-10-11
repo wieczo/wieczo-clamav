@@ -38,11 +38,11 @@ class Scanner {
 
 	/**
 	 * @param $filePath      Path to the file to scan
-	 * @param $errorMessage  Error Message which occurred when trying to open a socket, read the file or scan it for a virus
+	 * @param null $errorMessage Error Message which occurred when trying to open a socket, read the file or scan it for a virus
 	 *
-	 * @return bool Returns true if a virus was found or if an error occurred.
+	 * @return bool|null Returns true if a virus was found or if an error occurred.
 	 */
-	public function scanFile( $filePath, &$errorMessage = null ): bool {
+	public function scanFile( $filePath, &$errorMessage = null ): ?bool {
 		global $wp_filesystem;
 
 		// Initialisiere WP_Filesystem
@@ -59,7 +59,7 @@ class Scanner {
 		if ( ! $wp_filesystem->exists( $path ) ) {
 			$errorMessage = __( 'Die hochgeladene Datei konnte nicht gefunden werden.', 'wieczos-virus-scanner' );
 
-			return true;
+			return null;
 		}
 
 		// Connect to the ClamAV service
@@ -69,7 +69,7 @@ class Scanner {
 		if ( ! $socket ) {
 			$errorMessage = __( 'Konnte keine Verbindung zum Virenscanner herstellen.', 'wieczos-virus-scanner' );
 
-			return true;
+			return null;
 		}
 
 		// Send the INSTREAM command to ClamAV
@@ -83,7 +83,7 @@ class Scanner {
 			fclose( $socket );
 			$errorMessage = __( 'Konnte die hochgeladene Datei nicht lesen.', 'wieczos-virus-scanner' );
 
-			return true;
+			return null;
 		}
 
 		// Send the file in blocks 8192 Bytes to ClamAV
@@ -111,7 +111,7 @@ class Scanner {
 
 		// Überprüfen, ob ein Virus gefunden wurde
 		if ( str_contains( $response, 'FOUND' ) ) {
-			$this->logVirus( $filename );
+			$this->logVirus( $filePath );
 			/* translators: %s is replaced with the filename which contains a virus */
 			$errorMessage = sprintf( __( 'Die hochgeladene Datei "%s" ist mit einem Virus infiziert und wurde abgelehnt.', 'wieczos-virus-scanner' ), $filename );
 
@@ -166,7 +166,7 @@ class Scanner {
 
 		foreach ( $files as $value ) {
 			$path = realpath( $folder . DIRECTORY_SEPARATOR . $value );
-			if ( ! is_dir( $path ) ) {
+			if ( ! is_dir( $path ) && is_readable( $path ) ) {
 				$results[] = $path;
 			} else if ( $value != "." && $value != ".." ) {
 				self::collectAllFiles( $path, $results );

@@ -25,8 +25,8 @@ class Settings {
 	public function addAdminMenu() {
 		// Adds settings page
 		add_menu_page(
-			__( 'ClamAV Scanner Einstellungen', 'wieczos-virus-scanner' ),
-			__( 'ClamAV Einstellungen', 'wieczos-virus-scanner' ),
+			__( 'Scanner Einstellungen', 'wieczos-virus-scanner' ),
+			__( 'Virus Scanner', 'wieczos-virus-scanner' ),
 			'manage_options',
 			'wieczos-virus-scanner',
 			[ $this, 'showSettingsPage' ],
@@ -35,8 +35,8 @@ class Settings {
 
 		add_submenu_page(
 			'wieczos-virus-scanner',    // slug of the main menu
-			__( 'ClamAV Datei-Scanner', 'wieczos-virus-scanner' ),
-			__( 'ClamAV Scanner', 'wieczos-virus-scanner' ),
+			__( 'Einzeldatei-Scanner', 'wieczos-virus-scanner' ),
+			__( 'Datei Scanner', 'wieczos-virus-scanner' ),
 			'manage_options',
 			'wieczos-virus-scanner-test',    // Slug of the submenu
 			array( $this, 'showTestPage' ) // Callback for the page
@@ -44,8 +44,8 @@ class Settings {
 
 		add_submenu_page(
 			'wieczos-virus-scanner',    // slug of the main menu
-			__( 'WordPress Scan', 'wieczos-virus-scanner' ),
-			__( 'WordPress Scan', 'wieczos-virus-scanner' ),
+			__( 'WordPress Scanner', 'wieczos-virus-scanner' ),
+			__( 'WordPress Scanner', 'wieczos-virus-scanner' ),
 			'manage_options',
 			'full-scan',    // Slug of the submenu
 			array( $this, 'showFullScanPage' ) // Callback for the page
@@ -246,7 +246,7 @@ class Settings {
 
 		global $wpdb;
 
-		$tableName = $wpdb->prefix . Config::TABLE_LOGS;
+		$tableName = sanitize_key( $wpdb->prefix . Config::TABLE_LOGS );
 
 		// Entries per page
 		$entriesPerPage = 10;
@@ -263,15 +263,14 @@ class Settings {
 
 		// Total Count of entries
 		// phpcs:ignore
-		$totalItems = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %s", $tableName ) );
+		$totalItems = $wpdb->get_var( "SELECT COUNT(*) FROM {$tableName}" );
 
 		// Select the limited data
 		// phpcs:ignore
 		$results = $wpdb->get_results( $wpdb->prepare(
-			"SELECT * FROM %s LIMIT %d OFFSET %d",
-			$tableName, $entriesPerPage, $offset
+			"SELECT * FROM {$tableName} LIMIT %d OFFSET %d",
+			$entriesPerPage, $offset
 		) );
-
 		// Display the table
 		if ( ! empty( $results ) ) {
 			echo '<table class="wp-list-table widefat fixed striped tablesorter">';
@@ -322,12 +321,13 @@ class Settings {
 			$nonce = wp_create_nonce( 'paginate_nonce_action' );
 			// phpcs:ignore
 			echo paginate_links( [
-				'base'      => add_query_arg( [ 'paged', '%#%', '_wpnonce' => $nonce ] ),
+				'base'      => add_query_arg( 'paged', '%#%' ),
 				'format'    => '?paged=%#%',
 				'current'   => $paged,
 				'total'     => $total_pages,
-				'prev_text' => '« ' . escape_html( __( 'Zurück', 'wieczos-virus-scanner' ) ),
-				'next_text' => escape_html( __( 'Weiter', 'wieczos-virus-scanner' ) ) . ' »',
+				'prev_text' => '« ' . esc_html( __( 'Zurück', 'wieczos-virus-scanner' ) ),
+				'next_text' => esc_html( __( 'Weiter', 'wieczos-virus-scanner' ) ) . ' »',
+				'add_args'  => [ '_wpnonce' => $nonce ] // Füge den Nonce zu den Links hinzu
 			] );
 		}
 	}
@@ -336,7 +336,10 @@ class Settings {
 		$files = Scanner::collectAllFiles( \ABSPATH );
 		?>
         <div class="wrap">
-            <h1><?php echo __( 'Voller WordPress Scan', 'wieczos-virus-scanner' ) ?></h1>
+            <h1><?php echo esc_html( __( 'Voller WordPress Scan', 'wieczos-virus-scanner' ) ) ?></h1>
+            <p>
+				<?php echo esc_html( __( 'Es werden alle WordPress Dateien nach Viren durchsucht.', 'wieczos-virus-scanner' ) ) ?>
+            </p>
             <div id="progress-container"
                  style="width: 100%; background-color: #f3f3f3; border: 1px solid #ddd; padding: 5px;">
                 <div id="progress-bar"
@@ -344,16 +347,21 @@ class Settings {
                     0%
                 </div>
             </div>
-            <p id="progress-text"> <?php echo esc_html( sprintf( __( 'Es wurden %1$s von %2$s Dateien gescannt.', 'wieczos-virus-scanner' ), 0, count( $files ) ) ) ?></p>
+            <p id="progress-text"> <?php
+				/* translators: %1$s is replaced with the count of the files which have been already scanned,
+				   %2$s is replaced with the total count of all files
+				*/
+				echo esc_html( sprintf( __( 'Es wurden %1$s von %2$s Dateien gescannt.', 'wieczos-virus-scanner' ), 0, count( $files ) ) )
+				?></p>
             <button id="start-scan"
-                    class="button button-primary"><?php echo __( 'Scan starten', 'wieczos-virus-scanner' ) ?></button>
+                    class="button button-primary"><?php echo esc_html( __( 'Scan starten', 'wieczos-virus-scanner' ) ) ?></button>
         </div>
 		<?php
 	}
 
 	public function enqueueScripts( $hook ) {
-		// Woher kommt clamav-einstellungen_page_full-scan statt wieczos-virus-scanner_page_full-scan
-		if ( $hook !== 'clamav-einstellungen_page_full-scan' ) {
+		// Woher kommt  virus-scanner_page_full-scan statt wieczos-virus-scanner_page_full-scan
+		if ( $hook !== 'virus-scanner_page_full-scan' ) {
 			return;
 		}
 
@@ -367,13 +375,12 @@ class Settings {
 			'nonce'            => wp_create_nonce( 'wieczos-virus-scanner-batch_scan_nonce' ),
 			'totalFiles'       => count( $files ), // Gesamtzahl der zu scannenden Dateien
 			'localizedStrings' => [
-				/*
-				    translators: %1$s is replaced with the count of the files which have been already scanned,
-				    %1$s is replaced with the total count of all files
+				/* translators: %1$s is replaced with the count of the files which have been already scanned,
+				   %2$s is replaced with the total count of all files
 				*/
 				'filesScanned' => __( 'Es wurden %1$s von %2$s Dateien gescannt.', 'wieczos-virus-scanner' ),
 				/* translators: %1$s stand for the total of all infected files. */
-				'scanFinished' => __( 'Alle Dateien wurden erfolgreich gescannt! %1$s infizierte Dateien gefunden', 'wieczos-virus-scanner' ),
+				'scanFinished' => __( 'Alle Dateien wurden erfolgreich gescannt! %1$s infizierte Dateien gefunden. Infizierte Dateien sind im Log zu finden.', 'wieczos-virus-scanner' ),
 				'scanError'    => __( 'Es ist ein Fehler beim Scannen aufgetreten!', 'wieczos-virus-scanner' ),
 			]
 		] );
@@ -384,18 +391,21 @@ class Settings {
 
 		// Pick the offset from the request (how many files have been handled)
 		$offset        = isset( $_POST['offset'] ) ? intval( $_POST['offset'] ) : 0;
-		$infectedFiles = $_POST['infectedFiles'] ?? [];
+		$infectedFiles = $_POST['infectedFiles'] ? array_map( 'sanitize_text_field', wp_unslash( $_POST['infectedFiles'] ) ) : [];
 		$scanner       = new Scanner();
 		$wordpressRoot = \ABSPATH;
 		$files         = $scanner->collectAllFiles( $wordpressRoot );
 		$totalFiles    = count( $files );
 
 		$filesToScan = array_slice( $files, $offset, $this->batchSize );
+$start = microtime(true);
 		foreach ( $filesToScan as $file ) {
-			if ( $scanner->scanFile( $file ) ) {
+
+			if ( $scanner->scanFile( $file, $error ) === true ) {
 				$infectedFiles[] = $file;
 			};
 		}
+error_log('HERE: it took seconds; ' . microtime(true) - $start);
 		// Work on the next batch
 		$processedFiles = min( $offset + $this->batchSize, $totalFiles );
 
