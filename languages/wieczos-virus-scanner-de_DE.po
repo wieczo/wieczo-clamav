@@ -1,11 +1,11 @@
 # Copyright (C) 2024 Thomas Wieczorek
-# This file is distributed under the MIT License.
+# This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Wieczo's Virus Scanner 1.0.0\n"
+"Project-Id-Version: Wieczo's Virus Scanner 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wieczo-clamav\n"
-"POT-Creation-Date: 2024-10-11T00:48:23+00:00\n"
-"PO-Revision-Date: 2024-10-11 02:52+0200\n"
+"POT-Creation-Date: 2024-10-11T07:53:04+00:00\n"
+"PO-Revision-Date: 2024-10-11 10:06+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -22,8 +22,8 @@ msgstr "Wieczo's Virus Scanner"
 
 #. Plugin URI of the plugin
 #: wieczo-clamav.php
-msgid "https://wieczo.net/wieczo-clamav"
-msgstr "https://wieczo.net/wieczo-clamav"
+msgid "https://github.com/wieczo/wieczo-clamav"
+msgstr "https://github.com/wieczo/wieczo-clamav"
 
 #. Description of the plugin
 #: wieczo-clamav.php
@@ -40,15 +40,20 @@ msgstr "Thomas Wieczorek"
 msgid "https://wieczo.net"
 msgstr "https://wieczo.net"
 
-#: src/ClamAV/ClamAV.php:28
+#: src/ClamAV/ClamAV.php:35
+msgid "Die hochgeladene Datei konnte nicht gefunden werden."
+msgstr "Die hochgeladene Datei konnte nicht gefunden werden."
+
+#: src/ClamAV/ClamAV.php:45
 msgid "Konnte keine Verbindung zum Virenscanner herstellen."
 msgstr "Konnte keine Verbindung zum Virenscanner herstellen."
 
-#: src/ClamAV/ClamAV.php:39
+#: src/ClamAV/ClamAV.php:59
 msgid "Konnte die hochgeladene Datei nicht lesen."
 msgstr "Konnte die hochgeladene Datei nicht lesen."
 
-#: src/ClamAV/ClamAV.php:61
+#. translators: %s is replaced with the filename which contains a virus
+#: src/ClamAV/ClamAV.php:91
 msgid ""
 "Die hochgeladene Datei \"%s\" ist mit einem Virus infiziert und wurde "
 "abgelehnt."
@@ -56,15 +61,15 @@ msgstr ""
 "Die hochgeladene Datei \"%s\" ist mit einem Virus infiziert und wurde "
 "abgelehnt."
 
-#: src/ClamAV/Settings.php:20 src/ClamAV/Settings.php:48
+#: src/ClamAV/Settings.php:20 src/ClamAV/Settings.php:57
 msgid "ClamAV Scanner Einstellungen"
 msgstr "ClamAV Scanner Einstellungen"
 
-#: src/ClamAV/Settings.php:21 src/ClamAV/Settings.php:89
+#: src/ClamAV/Settings.php:21 src/ClamAV/Settings.php:98
 msgid "ClamAV Einstellungen"
 msgstr "ClamAV Einstellungen"
 
-#: src/ClamAV/Settings.php:30 src/ClamAV/Settings.php:153
+#: src/ClamAV/Settings.php:30 src/ClamAV/Settings.php:166
 msgid "ClamAV Datei-Scanner"
 msgstr "ClamAV Datei-Scanner"
 
@@ -72,15 +77,19 @@ msgstr "ClamAV Datei-Scanner"
 msgid "ClamAV Scanner"
 msgstr "ClamAV Scanner"
 
-#: src/ClamAV/Settings.php:44 src/ClamAV/Settings.php:169
+#: src/ClamAV/Settings.php:39 src/ClamAV/Settings.php:40
+msgid "Logs"
+msgstr "Logs"
+
+#: src/ClamAV/Settings.php:53 src/ClamAV/Settings.php:183
 msgid "Du hast keine Berechtigung für diesen Vorgang."
 msgstr "Du hast keine Berechtigung für diesen Vorgang."
 
-#: src/ClamAV/Settings.php:70
+#: src/ClamAV/Settings.php:79
 msgid "Hostname von ClamAV"
 msgstr "Hostname von ClamAV"
 
-#: src/ClamAV/Settings.php:71 src/ClamAV/Settings.php:125
+#: src/ClamAV/Settings.php:80 src/ClamAV/Settings.php:134
 msgid ""
 "Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn "
 "es lokal läuft, z.B. localhost"
@@ -88,54 +97,90 @@ msgstr ""
 "Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn "
 "es lokal läuft, z.B. localhost"
 
-#: src/ClamAV/Settings.php:76
+#: src/ClamAV/Settings.php:85
 msgid "Port von ClamAV"
 msgstr "Port von ClamAV"
 
-#: src/ClamAV/Settings.php:77 src/ClamAV/Settings.php:133
+#: src/ClamAV/Settings.php:86 src/ClamAV/Settings.php:142
 msgid "Der Standardwert ist 3310"
 msgstr "Der Standardwert ist 3310"
 
-#: src/ClamAV/Settings.php:82
+#: src/ClamAV/Settings.php:91
 msgid "Nach wie viel Sekunden soll die Verbindung abgebrochen werden"
 msgstr "Nach wie viel Sekunden soll die Verbindung abgebrochen werden"
 
-#: src/ClamAV/Settings.php:83 src/ClamAV/Settings.php:141
+#: src/ClamAV/Settings.php:92 src/ClamAV/Settings.php:150
 msgid "Der Standartwert ist 30 Sekunden"
 msgstr "Der Standartwert ist 30 Sekunden"
 
-#: src/ClamAV/Settings.php:95
+#: src/ClamAV/Settings.php:104
 msgid "ClamAV Host"
 msgstr "ClamAV Host"
 
-#: src/ClamAV/Settings.php:102
+#: src/ClamAV/Settings.php:111
 msgid "ClamAV Port"
 msgstr "ClamAV Port"
 
-#: src/ClamAV/Settings.php:109
+#: src/ClamAV/Settings.php:118
 msgid "Timeout"
 msgstr "Timeout"
 
-#: src/ClamAV/Settings.php:118
+#: src/ClamAV/Settings.php:127
 msgid "Hier findest du die ClamAV Verbindungsoptionen"
 msgstr "Hier findest du die ClamAV Verbindungsoptionen"
 
-#: src/ClamAV/Settings.php:157
-msgid "Wähle eine Datei zum Scannen aus:"
-msgstr "Wähle eine Datei zum Scannen aus:"
-
-#: src/ClamAV/Settings.php:160
-msgid "Datei scannen"
-msgstr "Datei scannen"
-
-#: src/ClamAV/Settings.php:172
+#: src/ClamAV/Settings.php:158 src/ClamAV/Settings.php:186
 msgid "Ungültiger Sicherheits-Token"
 msgstr "Ungültiger Sicherheits-Token"
 
-#: src/ClamAV/Settings.php:199
+#: src/ClamAV/Settings.php:171
+msgid "Wähle eine Datei zum Scannen aus:"
+msgstr "Wähle eine Datei zum Scannen aus:"
+
+#: src/ClamAV/Settings.php:174
+msgid "Datei scannen"
+msgstr "Datei scannen"
+
+#: src/ClamAV/Settings.php:194
+msgid "Fehler beim Hochladen der Datei."
+msgstr "Fehler beim Hochladen der Datei."
+
+#: src/ClamAV/Settings.php:221
 msgid "Fehler beim Hochladen der Datei: "
 msgstr "Fehler beim Hochladen der Datei: "
 
-#: src/ClamAV/Settings.php:202
+#: src/ClamAV/Settings.php:224
 msgid "Keine Datei hochgeladen."
 msgstr "Keine Datei hochgeladen."
+
+#: src/ClamAV/Settings.php:240
+msgid "Ungültige Paginierungsanfrage."
+msgstr "Ungültige Paginierungsanfrage."
+
+#: src/ClamAV/Settings.php:277
+msgid "ID"
+msgstr "ID"
+
+#: src/ClamAV/Settings.php:278
+msgid "Benutzername"
+msgstr "Benutzername"
+
+#: src/ClamAV/Settings.php:279
+msgid "Dateiname"
+msgstr "Dateiname"
+
+#: src/ClamAV/Settings.php:280
+msgid "Erstellungsdatum"
+msgstr "Erstellungsdatum"
+
+#: src/ClamAV/Settings.php:311
+msgid "Keine Daten gefunden."
+msgstr "Keine Daten gefunden."
+
+#: src/ClamAV/Settings.php:326
+msgid "Zurück"
+msgstr "Zurück"
+
+#: src/ClamAV/Settings.php:327
+msgid "Weiter"
+msgstr "Weiter"

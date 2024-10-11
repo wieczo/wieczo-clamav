@@ -155,7 +155,7 @@ class Settings {
 		$scanResult = isset( $_GET['scan_result'] ) ? urldecode( sanitize_text_field( wp_unslash( $_GET['scan_result'] ) ) ) : null;
 		// Check only the nonce when it is set, no need to test it on a normal page call.
 		if ( isset( $_GET['_wpnonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'file_check_nonce' ) ) {
-			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token1', 'wieczos-virus-scanner' ) ) );
+			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token', 'wieczos-virus-scanner' ) ) );
 		}
 		if ( $scanResult ) {
 			echo '<div class="notice notice-success"><p><strong>Scan Ergebnis:</strong> ' . esc_html( $scanResult ) . '</p></div>';
@@ -183,12 +183,18 @@ class Settings {
 			wp_die( esc_html( __( 'Du hast keine Berechtigung für diesen Vorgang.', 'wieczos-virus-scanner' ) ) );
 		}
 		if ( ! isset( $_POST['clamav_scan_file_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['clamav_scan_file_nonce'] ) ), 'clamav_scan_file_action' ) ) {
-			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token2', 'wieczos-virus-scanner' ) ) );
+			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token', 'wieczos-virus-scanner' ) ) );
 		}
 		// Check if a file was uploaded
 		if ( isset( $_FILES['clamav_file'] ) && isset( $_FILES['clamav_file']['size'] ) && $_FILES['clamav_file']['size'] > 0 ) {
-			$uploaded_file = sanitize_text_field ( wp_unslash ( $_FILES['clamav_file'] ) );
+			$uploaded_file = wp_unslash( $_FILES['clamav_file'] );
 
+			// Validate file upload status
+			if ( $_FILES['clamav_file']['error'] !== UPLOAD_ERR_OK ) {
+				wp_die( esc_html( __( 'Fehler beim Hochladen der Datei.', 'wieczos-virus-scanner' ) ) );
+			}
+			// Sanitize the filename
+			$uploaded_file['name'] = sanitize_file_name( $uploaded_file['name'] );
 			// Validate and save file
 			$upload_overrides = array( 'test_form' => false );
 			$movefile         = wp_handle_upload( $uploaded_file, $upload_overrides );
@@ -239,29 +245,29 @@ class Settings {
 		$offset = ( $paged - 1 ) * $entriesPerPage;
 
 		// Total Count of entries
-        $cacheKeyTotalItems = 'wieczo-clamav-scan-total-items-' . $entriesPerPage;
-        $totalItems = wp_cache_get($cacheKeyTotalItems);
-        if ( false === $totalItems) {
-            // phpcs:ignore
-	        $totalItems = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %s", $tableName ) );
+		$cacheKeyTotalItems = 'wieczo-clamav-scan-total-items-' . $entriesPerPage;
+		$totalItems         = wp_cache_get( $cacheKeyTotalItems );
+		if ( false === $totalItems ) {
+			// phpcs:ignore
+			$totalItems = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %s", $tableName ) );
 
-            // Cache for a minute
-            wp_cache_set($cacheKeyTotalItems, $totalItems, '', 60);
-        }
+			// Cache for a minute
+			wp_cache_set( $cacheKeyTotalItems, $totalItems, '', 60 );
+		}
 
 		// Select the limited data
-        $cacheKeyResults = 'wieczo-clamav-scan-results-' . $entriesPerPage . '-' . $offset;
-        $results = wp_cache_get($cacheKeyResults);
-        if ( false === $results ) {
-	        // phpcs:ignore
-	        $results = $wpdb->get_results( $wpdb->prepare(
-		        "SELECT * FROM %s LIMIT %d OFFSET %d",
-		        $tableName, $entriesPerPage, $offset
-	        ) );
+		$cacheKeyResults = 'wieczo-clamav-scan-results-' . $entriesPerPage . '-' . $offset;
+		$results         = wp_cache_get( $cacheKeyResults );
+		if ( false === $results ) {
+			// phpcs:ignore
+			$results = $wpdb->get_results( $wpdb->prepare(
+				"SELECT * FROM %s LIMIT %d OFFSET %d",
+				$tableName, $entriesPerPage, $offset
+			) );
 
-            // Cache for a minute
-            wp_cache_set($cacheKeyResults, $results, '', 60);
-        }
+			// Cache for a minute
+			wp_cache_set( $cacheKeyResults, $results, '', 60 );
+		}
 
 		// Display the table
 		if ( ! empty( $results ) ) {
