@@ -1,54 +1,66 @@
 <?php
+
 namespace Wieczo\WordPress\Plugins\ClamAV;
 class ClamAV {
-  public function __construct(private string $host = 'clamav', private int $port = 3300, private int $timeout = 30) {}
+	private string $host;
+	private int $port;
+	private int $timeout;
+
+  public function __construct() {
+	  $this->host    = sanitize_text_field( get_option( 'clamav_host', Config::DEFAULT_HOST ) );
+	  $this->port    = (int) get_option( 'clamav_port', Config::DEFAULT_PORT );
+	  $this->timeout = (int) get_option( 'clamav_timeout', Config::DEFAULT_TIMEOUT );
+  }
 
   /**
    * @param array $file Contains the following keys ['tmp_name', 'name'] mapping the upload path and the filename.
+   *
    * @return array Returns the input $file array with the key 'error' when a virus was found.
    */
-  public function scanFile(array $file): array {
-    $filepath = $file['tmp_name'];
-    $filename = $file['name'];
+  public function scanFile( array $file ): array {
+	  $filepath = $file['tmp_name'];
+	  $filename = $file['name'];
 
-    // Open Socket to the ClamAV service
-    $socket = fsockopen($this->host, $this->port, $errorCode, $errorMessage, $this->timeout);
+	  // Open Socket to the ClamAV service
+	  $socket = fsockopen( $this->host, $this->port, $errorCode, $errorMessage, $this->timeout );
 
-    if (!$socket) {
-      $file['error'] = __('Konnte keine Verbindung zum Virenscanner herstellen.', Config::LANGUAGE_DOMAIN);
-      return $file;
-    }
+	  if ( ! $socket ) {
+		  $file['error'] = __( 'Konnte keine Verbindung zum Virenscanner herstellen.', Config::LANGUAGE_DOMAIN );
 
-    // INSTREAM-Kommando senden
-    fwrite($socket, "nINSTREAM\n");
+		  return $file;
+	  }
 
-    $handle = fopen($filepath, "rb");
-    if (!$handle) {
-      fclose($socket);
-      $file['error'] = __('Konnte die hochgeladene Datei nicht lesen.', Config::LANGUAGE_DOMAIN);
-      return $file;
-    }
+	  // INSTREAM-Kommando senden
+	  fwrite( $socket, "nINSTREAM\n" );
 
-    while (!feof($handle)) {
-      $chunk = fread($handle, 8192);
-      $size = pack('N', strlen($chunk));
-      fwrite($socket, $size . $chunk);
-    }
+	  $handle = fopen( $filepath, "rb" );
+	  if ( ! $handle ) {
+		  fclose( $socket );
+		  $file['error'] = __( 'Konnte die hochgeladene Datei nicht lesen.', Config::LANGUAGE_DOMAIN );
 
-    // Null-Größe senden, um das Ende zu markieren
-    fwrite($socket, pack('N', 0));
+		  return $file;
+	  }
 
-    // Antwort lesen
-    $response = fgets($socket);
+	  while ( ! feof( $handle ) ) {
+		  $chunk = fread( $handle, 8192 );
+		  $size  = pack( 'N', strlen( $chunk ) );
+		  fwrite( $socket, $size . $chunk );
+	  }
 
-    fclose($handle);
-    fclose($socket);
+	  // Null-Größe senden, um das Ende zu markieren
+	  fwrite( $socket, pack( 'N', 0 ) );
 
-    // Überprüfen, ob ein Virus gefunden wurde
-    if ( str_contains( $response, 'FOUND' ) ) {
-      $file['error'] = sprintf(__('Die hochgeladene Datei "%s" ist mit einem Virus infiziert und wurde abgelehnt.', Config::LANGUAGE_DOMAIN), $filename);
-    }
+	  // Antwort lesen
+	  $response = fgets( $socket );
 
-    return $file;
+	  fclose( $handle );
+	  fclose( $socket );
+
+	  // Überprüfen, ob ein Virus gefunden wurde
+	  if ( str_contains( $response, 'FOUND' ) ) {
+		  $file['error'] = sprintf( __( 'Die hochgeladene Datei "%s" ist mit einem Virus infiziert und wurde abgelehnt.', Config::LANGUAGE_DOMAIN ), $filename );
+	  }
+
+	  return $file;
   }
 }
