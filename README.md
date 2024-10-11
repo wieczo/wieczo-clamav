@@ -25,6 +25,15 @@ The plugin connects to a ClamAV service using the **Host** and **Port** variable
 - **ClamAV Integration**: Sends files via a socket connection to a ClamAV service for virus scanning.
 - **Easy Configuration**: Configure the host and port of the ClamAV service in the plugin settings.
 
+## How to Contribute
+
+We’re excited to welcome contributors to Wieczo's Virus Scanner!
+Whether you're a seasoned developer or just getting started, your input is valuable.
+You can help us by reporting bugs, suggesting new features, or improving the code.
+It’s a great way to sharpen your skills and make a real impact.
+Just fork the repository, work on your ideas, and submit a pull request.
+We’ll review it as soon as possible and work together to make this plugin even better!
+
 ## Installation
 
 ### Manual Installation:
