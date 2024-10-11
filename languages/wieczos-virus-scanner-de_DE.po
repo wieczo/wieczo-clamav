@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Wieczo's Virus Scanner 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wieczo-clamav\n"
 "POT-Creation-Date: 2024-10-11T07:53:04+00:00\n"
-"PO-Revision-Date: 2024-10-11 10:06+0200\n"
+"PO-Revision-Date: 2024-10-11 11:10+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -16,27 +16,27 @@ msgstr ""
 "X-Domain: wieczos-virus-scanner\n"
 
 #. Plugin Name of the plugin
-#: wieczo-clamav.php
+#: wieczos-virus-scanner.php
 msgid "Wieczo's Virus Scanner"
 msgstr "Wieczo's Virus Scanner"
 
 #. Plugin URI of the plugin
-#: wieczo-clamav.php
+#: wieczos-virus-scanner.php
 msgid "https://github.com/wieczo/wieczo-clamav"
 msgstr "https://github.com/wieczo/wieczo-clamav"
 
 #. Description of the plugin
-#: wieczo-clamav.php
+#: wieczos-virus-scanner.php
 msgid "Untersuche hochgeladene Dateien auf Viren und Malware mit ClamAV."
 msgstr "Untersuche hochgeladene Dateien auf Viren und Malware mit ClamAV."
 
 #. Author of the plugin
-#: wieczo-clamav.php
+#: wieczos-virus-scanner.php
 msgid "Thomas Wieczorek"
 msgstr "Thomas Wieczorek"
 
 #. Author URI of the plugin
-#: wieczo-clamav.php
+#: wieczos-virus-scanner.php
 msgid "https://wieczo.net"
 msgstr "https://wieczo.net"
 
