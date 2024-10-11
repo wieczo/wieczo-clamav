@@ -182,13 +182,12 @@ class Settings {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html( __( 'Du hast keine Berechtigung für diesen Vorgang.', 'wieczos-virus-scanner' ) ) );
 		}
-		if ( ! isset( $_POST['clamav_scan_file_nonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['clamav_scan_file_nonce'] ) ), 'clamav_scan_file_action' ) ) {
+		if ( ! isset( $_POST['clamav_scan_file_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['clamav_scan_file_nonce'] ) ), 'clamav_scan_file_action' ) ) {
 			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token2', 'wieczos-virus-scanner' ) ) );
 		}
 		// Check if a file was uploaded
 		if ( isset( $_FILES['clamav_file'] ) && isset( $_FILES['clamav_file']['size'] ) && $_FILES['clamav_file']['size'] > 0 ) {
-			// phpcs:ignore
-			$uploaded_file = $_FILES['clamav_file'];
+			$uploaded_file = sanitize_text_field ( wp_unslash ( $_FILES['clamav_file'] ) );
 
 			// Validate and save file
 			$upload_overrides = array( 'test_form' => false );
@@ -206,7 +205,7 @@ class Settings {
 				// Show scan results
 				$nonce           = wp_create_nonce( 'file_check_nonce' );
 				$scan_result_url = add_query_arg( [
-					'scan_result' => urlencode( urlencode( $fileArray['error'] ?? 'OK' ) ),
+					'scan_result' => urlencode( $fileArray['error'] ?? 'OK' ),
 					'_wpnonce'    => $nonce,
 				], admin_url( 'admin.php?page=wieczo-clamav-test' ) );
 				wp_redirect( $scan_result_url );

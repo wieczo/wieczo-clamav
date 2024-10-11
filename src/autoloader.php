@@ -1,4 +1,9 @@
 <?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Prevent direct access
+}
+
 spl_autoload_register( function ( $class ) {
 	$namespace = 'Wieczo\WordPress\Plugins\ClamAV\\';
 	if ( str_starts_with( $class, $namespace ) ) {
