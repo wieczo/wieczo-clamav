@@ -30,7 +30,7 @@ register_deactivation_hook( __FILE__, [ $tableUpdates, 'dropTable' ] );
 // Initialize Scanner for handling uploaded files
 $clamAV = new Scanner();
 
-add_filter( 'wp_handle_upload_prefilter', [ $clamAV, 'scanFile' ] );
+add_filter( 'wp_handle_upload_prefilter', [ $clamAV, 'scanUpload' ] );
 
 // Initialize settings pages
 $settings = new Settings();
