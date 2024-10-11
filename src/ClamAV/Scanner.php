@@ -54,10 +54,13 @@ class Scanner {
 
 		$path     = $filePath;
 		$filename = basename( $filePath );
+		$error    = null;
 
 		// Check if the file exists
 		if ( ! $wp_filesystem->exists( $path ) ) {
-			$errorMessage = __( 'Die hochgeladene Datei konnte nicht gefunden werden.', 'wieczos-virus-scanner' );
+			$error        = UploadError::FILE_NOT_FOUND;
+			$errorMessage = $error->message( $filename );
+			$this->logError( $filePath, $error );
 
 			return null;
 		}
@@ -67,7 +70,9 @@ class Scanner {
 		$socket = fsockopen( $this->host, $this->port, $errorCode, $errorMessage, $this->timeout );
 
 		if ( ! $socket ) {
-			$errorMessage = __( 'Konnte keine Verbindung zum Virenscanner herstellen.', 'wieczos-virus-scanner' );
+			$error        = UploadError::CONNECTION_REFUSED;
+			$errorMessage = $error->message( $filename );
+			$this->logError( $filePath, $error );
 
 			return null;
 		}
@@ -81,7 +86,9 @@ class Scanner {
 		if ( ! $handle ) {
 			// phpcs:ignore
 			fclose( $socket );
-			$errorMessage = __( 'Konnte die hochgeladene Datei nicht lesen.', 'wieczos-virus-scanner' );
+			$error        = UploadError::CANNOT_READ;
+			$errorMessage = $error->message( $filename );
+			$this->logError( $filePath, $error );
 
 			return null;
 		}
@@ -111,9 +118,9 @@ class Scanner {
 
 		// Überprüfen, ob ein Virus gefunden wurde
 		if ( str_contains( $response, 'FOUND' ) ) {
-			$this->logVirus( $filePath );
-			/* translators: %s is replaced with the filename which contains a virus */
-			$errorMessage = sprintf( __( 'Die hochgeladene Datei "%s" ist mit einem Virus infiziert und wurde abgelehnt.', 'wieczos-virus-scanner' ), $filename );
+			$error        = UploadError::VIRUS_FOUND;
+			$errorMessage = $error->message( $filename );
+			$this->logError( $filePath, $error );
 
 			return true;
 		}
@@ -128,7 +135,7 @@ class Scanner {
 	 *
 	 * @return void
 	 */
-	private function logVirus( string $filename ): void {
+	private function logError( string $filename, UploadError $error ): void {
 		global $wpdb;
 
 		// Table name
@@ -142,6 +149,7 @@ class Scanner {
 		$data = [
 			'user_name'  => sanitize_text_field( $username ),
 			'filename'   => sanitize_text_field( $filename ),
+			'error_type' => $error->name,
 			'created_at' => current_time( 'mysql' ) // Aktuelles Datum im MySQL-Format
 		];
 

@@ -3,7 +3,7 @@
 namespace Wieczo\WordPress\Plugins\ClamAV;
 
 class Settings {
-	private int $batchSize = 500;
+	private int $batchSize = 1_000;
 
 	public function __construct() {
 		add_action( 'admin_menu', [ $this, 'addAdminMenu' ] );
@@ -279,6 +279,7 @@ class Settings {
                 <th>' . esc_html( __( 'ID', 'wieczos-virus-scanner' ) ) . '</th>
                 <th>' . esc_html( __( 'Benutzername', 'wieczos-virus-scanner' ) ) . '</th>
                 <th>' . esc_html( __( 'Dateiname', 'wieczos-virus-scanner' ) ) . '</th>
+                <th>' . esc_html( __( 'Fehlertyp', 'wieczos-virus-scanner' ) ) . '</th>
                 <th>' . esc_html( __( 'Erstellungsdatum', 'wieczos-virus-scanner' ) ) . '</th>
             </tr>
           </thead>';
@@ -303,6 +304,7 @@ class Settings {
 				// phpcs:ignore
 				echo '<td>' . $userNameWithLink . '</td>';
 				echo '<td>' . esc_html( $row->filename ) . '</td>';
+				echo '<td>' . esc_html( UploadError::mapNameToEnum( $row->error_type )?->message( $row->filename ) ) . '</td>';
 				echo '<td>' . esc_html( date_i18n( get_option( 'date_format' ), strtotime( $row->created_at ) ) ) . '</td>';
 				echo '</tr>';
 			}
@@ -398,14 +400,12 @@ class Settings {
 		$totalFiles    = count( $files );
 
 		$filesToScan = array_slice( $files, $offset, $this->batchSize );
-$start = microtime(true);
 		foreach ( $filesToScan as $file ) {
 
 			if ( $scanner->scanFile( $file, $error ) === true ) {
 				$infectedFiles[] = $file;
 			};
 		}
-error_log('HERE: it took seconds; ' . microtime(true) - $start);
 		// Work on the next batch
 		$processedFiles = min( $offset + $this->batchSize, $totalFiles );
 
