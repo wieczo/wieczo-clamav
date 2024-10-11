@@ -8,7 +8,7 @@ Author: Thomas Wieczorek
 Author URI: https://wieczo.net
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: wieczo-clamav
+Text Domain: wieczos-virus-scanner
 Domain Path: /languages
 */
 
@@ -39,7 +39,7 @@ $settings = new Settings();
 add_action( 'plugins_loaded', 'wieczo_clamav_load_textdomain' );
 
 function wieczo_clamav_load_textdomain() {
-	load_plugin_textdomain( 'wieczo-clamav', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+	load_plugin_textdomain( 'wieczos-virus-scanner', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 }
 
 new Enqueuer();

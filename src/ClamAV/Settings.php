@@ -17,27 +17,27 @@ class Settings {
 	public function addAdminMenu() {
 		// Adds settings page
 		add_menu_page(
-			__( 'ClamAV Scanner Einstellungen', 'wieczo-clamav' ),
-			__( 'ClamAV Einstellungen', 'wieczo-clamav' ),
+			__( 'ClamAV Scanner Einstellungen', 'wieczos-virus-scanner' ),
+			__( 'ClamAV Einstellungen', 'wieczos-virus-scanner' ),
 			'manage_options',
-			'wieczo-clamav',
+			'wieczos-virus-scanner',
 			[ $this, 'showSettingsPage' ],
 			'dashicons-shield'
 		);
 
 		add_submenu_page(
-			'wieczo-clamav',    // slug of the main menu
-			__( 'ClamAV Datei-Scanner', 'wieczo-clamav' ),
-			__( 'ClamAV Scanner', 'wieczo-clamav' ),
+			'wieczos-virus-scanner',    // slug of the main menu
+			__( 'ClamAV Datei-Scanner', 'wieczos-virus-scanner' ),
+			__( 'ClamAV Scanner', 'wieczos-virus-scanner' ),
 			'manage_options',
 			'wieczo-clamav-test',    // Slug of the submenu
 			array( $this, 'showTestPage' ) // Callback for the page
 		);
 
 		add_submenu_page(
-			'wieczo-clamav',    // slug of the main menu
-			__( 'Logs', 'wieczo-clamav' ),
-			__( 'Logs', 'wieczo-clamav' ),
+			'wieczos-virus-scanner',    // slug of the main menu
+			__( 'Logs', 'wieczos-virus-scanner' ),
+			__( 'Logs', 'wieczos-virus-scanner' ),
 			'manage_options',
 			'wieczo-clamav-logs',    // Slug of the submenu
 			array( $this, 'showLogsPage' ) // Callback for the page
@@ -50,11 +50,11 @@ class Settings {
 	 */
 	public function showSettingsPage() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html( __( 'Du hast keine Berechtigung für diesen Vorgang.', 'wieczo-clamav' ) ) );
+			wp_die( esc_html( __( 'Du hast keine Berechtigung für diesen Vorgang.', 'wieczos-virus-scanner' ) ) );
 		}
 		?>
         <div class="wrap">
-            <h1><?php __( 'ClamAV Scanner Einstellungen', 'wieczo-clamav' ) ?></h1>
+            <h1><?php __( 'ClamAV Scanner Einstellungen', 'wieczos-virus-scanner' ) ?></h1>
             <form method="post" action="options.php">
 				<?php
 				// Render settings fields
@@ -76,46 +76,46 @@ class Settings {
 		// Define the settings
 		register_setting( 'wieczo_clamav_options_group', 'clamav_host', [
 			'type'        => 'string',
-			'label'       => __( 'Hostname von ClamAV', 'wieczo-clamav' ),
-			'description' => __( 'Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn es lokal läuft, z.B. localhost', 'wieczo-clamav' ),
+			'label'       => __( 'Hostname von ClamAV', 'wieczos-virus-scanner' ),
+			'description' => __( 'Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn es lokal läuft, z.B. localhost', 'wieczos-virus-scanner' ),
 			'default'     => Config::DEFAULT_HOST,
 		] );
 		register_setting( 'wieczo_clamav_options_group', 'clamav_port', [
 			'type'        => 'integer',
-			'label'       => __( 'Port von ClamAV', 'wieczo-clamav' ),
-			'description' => __( 'Der Standardwert ist 3310', 'wieczo-clamav' ),
+			'label'       => __( 'Port von ClamAV', 'wieczos-virus-scanner' ),
+			'description' => __( 'Der Standardwert ist 3310', 'wieczos-virus-scanner' ),
 			'default'     => Config::DEFAULT_PORT,
 		] );
 		register_setting( 'wieczo_clamav_options_group', 'clamav_timeout', [
 			'type'        => 'integer',
-			'label'       => __( 'Nach wie viel Sekunden soll die Verbindung abgebrochen werden', 'wieczo-clamav' ),
-			'description' => __( 'Der Standartwert ist 30 Sekunden', 'wieczo-clamav' ),
+			'label'       => __( 'Nach wie viel Sekunden soll die Verbindung abgebrochen werden', 'wieczos-virus-scanner' ),
+			'description' => __( 'Der Standartwert ist 30 Sekunden', 'wieczos-virus-scanner' ),
 			'default'     => Config::DEFAULT_TIMEOUT,
 		] );
 
 		add_settings_section(
 			'wieczo_clamav_section',
-			__( 'ClamAV Einstellungen', 'wieczo-clamav' ),
+			__( 'ClamAV Einstellungen', 'wieczos-virus-scanner' ),
 			[ $this, 'settingsCB' ],
 			'wieczo_clamav_settings'
 		);
 		add_settings_field(
 			'clamav_host',
-			__( 'ClamAV Host', 'wieczo-clamav' ),
+			__( 'ClamAV Host', 'wieczos-virus-scanner' ),
 			[ $this, 'renderSettingHost' ],
 			'wieczo_clamav_settings',
 			'wieczo_clamav_section'
 		);
 		add_settings_field(
 			'clamav_port',
-			__( 'ClamAV Port', 'wieczo-clamav' ),
+			__( 'ClamAV Port', 'wieczos-virus-scanner' ),
 			[ $this, 'renderSettingPort' ],
 			'wieczo_clamav_settings',
 			'wieczo_clamav_section'
 		);
 		add_settings_field(
 			'clamav_timeout',
-			__( 'Timeout', 'wieczo-clamav' ),
+			__( 'Timeout', 'wieczos-virus-scanner' ),
 			[ $this, 'renderSettingTimeout' ],
 			'wieczo_clamav_settings',
 			'wieczo_clamav_section'
@@ -124,14 +124,14 @@ class Settings {
 
 
 	public function settingsCB() {
-		echo esc_html( __( 'Hier findest du die ClamAV Verbindungsoptionen', 'wieczo-clamav' ) );
+		echo esc_html( __( 'Hier findest du die ClamAV Verbindungsoptionen', 'wieczos-virus-scanner' ) );
 	}
 
 	public function renderSettingHost() {
 		$host = esc_attr( get_option( 'clamav_host' ) );
 		?>
         <input type="text" name="clamav_host" value="<?php echo esc_attr( $host ); ?>"/>
-        <p class="description"><?php esc_html( __( 'Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn es lokal läuft, z.B. localhost', 'wieczo-clamav' ) ) ?></p>
+        <p class="description"><?php esc_html( __( 'Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn es lokal läuft, z.B. localhost', 'wieczos-virus-scanner' ) ) ?></p>
 		<?php
 	}
 
@@ -139,7 +139,7 @@ class Settings {
 		$port = (int) get_option( 'clamav_port' );
 		?>
         <input type="text" name="clamav_port" value="<?php echo esc_attr( $port ); ?>"/>
-        <p class="description"><?php esc_html( __( 'Der Standardwert ist 3310', 'wieczo-clamav' ) ) ?></p>
+        <p class="description"><?php esc_html( __( 'Der Standardwert ist 3310', 'wieczos-virus-scanner' ) ) ?></p>
 		<?php
 	}
 
@@ -147,7 +147,7 @@ class Settings {
 		$timeout = (int) get_option( 'clamav_timeout' );
 		?>
         <input type="text" name="clamav_timeout" value="<?php echo esc_attr( $timeout ); ?>"/>
-        <p class="description"><?php esc_html( __( 'Der Standartwert ist 30 Sekunden', 'wieczo-clamav' ) ) ?></p>
+        <p class="description"><?php esc_html( __( 'Der Standartwert ist 30 Sekunden', 'wieczos-virus-scanner' ) ) ?></p>
 		<?php
 	}
 
@@ -155,7 +155,7 @@ class Settings {
 		$scanResult = isset( $_GET['scan_result'] ) ? urldecode( sanitize_text_field( wp_unslash( $_GET['scan_result'] ) ) ) : null;
 		// Check only the nonce when it is set, no need to test it on a normal page call.
 		if ( isset( $_GET['_wpnonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'file_check_nonce' ) ) {
-			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token1', 'wieczo-clamav' ) ) );
+			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token1', 'wieczos-virus-scanner' ) ) );
 		}
 		if ( $scanResult ) {
 			echo '<div class="notice notice-success"><p><strong>Scan Ergebnis:</strong> ' . esc_html( $scanResult ) . '</p></div>';
@@ -163,15 +163,15 @@ class Settings {
 		?>
 
         <div class="wrap">
-            <h1><?php __( 'ClamAV Datei-Scanner', 'wieczo-clamav' ) ?></h1>
+            <h1><?php __( 'ClamAV Datei-Scanner', 'wieczos-virus-scanner' ) ?></h1>
             <form method="post" enctype="multipart/form-data"
                   action="<?php echo esc_attr( admin_url( 'admin-post.php' ) ); ?>">
                 <input type="hidden" name="action" value="wieczo_clamav_scan_file">
 				<?php wp_nonce_field( 'clamav_scan_file_action', 'clamav_scan_file_nonce' ); ?>
-                <label for="clamav-file-upload"><?php esc_html( __( 'Wähle eine Datei zum Scannen aus:', 'wieczo-clamav' ) ) ?></label>
+                <label for="clamav-file-upload"><?php esc_html( __( 'Wähle eine Datei zum Scannen aus:', 'wieczos-virus-scanner' ) ) ?></label>
                 <input type="file" name="clamav_file" id="clamav-file-upload" required>
 
-				<?php submit_button( esc_html( __( 'Datei scannen', 'wieczo-clamav' ) ) ); ?>
+				<?php submit_button( esc_html( __( 'Datei scannen', 'wieczos-virus-scanner' ) ) ); ?>
             </form>
         </div>
 		<?php
@@ -180,10 +180,10 @@ class Settings {
 	public function scanUploadedFile() {
 		// Check policies.
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html( __( 'Du hast keine Berechtigung für diesen Vorgang.', 'wieczo-clamav' ) ) );
+			wp_die( esc_html( __( 'Du hast keine Berechtigung für diesen Vorgang.', 'wieczos-virus-scanner' ) ) );
 		}
 		if ( ! isset( $_POST['clamav_scan_file_nonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['clamav_scan_file_nonce'] ) ), 'clamav_scan_file_action' ) ) {
-			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token2', 'wieczo-clamav' ) ) );
+			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token2', 'wieczos-virus-scanner' ) ) );
 		}
 		// Check if a file was uploaded
 		if ( isset( $_FILES['clamav_file'] ) && isset( $_FILES['clamav_file']['size'] ) && $_FILES['clamav_file']['size'] > 0 ) {
@@ -213,10 +213,10 @@ class Settings {
 				exit;
 			} else {
 				// Error while uploading
-				wp_die( esc_html( __( 'Fehler beim Hochladen der Datei: ', 'wieczo-clamav' ) . esc_html( $movefile['error'] ) ) );
+				wp_die( esc_html( __( 'Fehler beim Hochladen der Datei: ', 'wieczos-virus-scanner' ) . esc_html( $movefile['error'] ) ) );
 			}
 		} else {
-			wp_die( esc_html( __( 'Keine Datei hochgeladen.', 'wieczo-clamav' ) ) );
+			wp_die( esc_html( __( 'Keine Datei hochgeladen.', 'wieczos-virus-scanner' ) ) );
 		}
 	}
 
@@ -232,7 +232,7 @@ class Settings {
 		// Current page
 		// Check if the nonce is set and correct
 		if ( isset( $_GET['_wpnonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'paginate_nonce_action' ) ) {
-			wp_die( esc_html( __( 'Ungültige Paginierungsanfrage.', 'wieczo-clamav' ) ) );
+			wp_die( esc_html( __( 'Ungültige Paginierungsanfrage.', 'wieczos-virus-scanner' ) ) );
 		}
 		$paged = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
 
@@ -260,6 +260,7 @@ class Settings {
 		        $tableName, $entriesPerPage, $offset
 	        ) );
 
+            // Cache for a minute
             wp_cache_set($cacheKeyResults, $results, '', 60);
         }
 
@@ -268,10 +269,10 @@ class Settings {
 			echo '<table class="wp-list-table widefat fixed striped tablesorter">';
 			echo '<thead>
             <tr>
-                <th>' . esc_html( __( 'ID', 'wieczo-clamav' ) ) . '</th>
-                <th>' . esc_html( __( 'Benutzername', 'wieczo-clamav' ) ) . '</th>
-                <th>' . esc_html( __( 'Dateiname', 'wieczo-clamav' ) ) . '</th>
-                <th>' . esc_html( __( 'Erstellungsdatum', 'wieczo-clamav' ) ) . '</th>
+                <th>' . esc_html( __( 'ID', 'wieczos-virus-scanner' ) ) . '</th>
+                <th>' . esc_html( __( 'Benutzername', 'wieczos-virus-scanner' ) ) . '</th>
+                <th>' . esc_html( __( 'Dateiname', 'wieczos-virus-scanner' ) ) . '</th>
+                <th>' . esc_html( __( 'Erstellungsdatum', 'wieczos-virus-scanner' ) ) . '</th>
             </tr>
           </thead>';
 			echo '<tbody>';
@@ -302,7 +303,7 @@ class Settings {
 			echo '</tbody>';
 			echo '</table>';
 		} else {
-			echo '<p>' . esc_html( __( 'Keine Daten gefunden.', 'wieczo-clamav' ) ) . '</p>';
+			echo '<p>' . esc_html( __( 'Keine Daten gefunden.', 'wieczos-virus-scanner' ) ) . '</p>';
 		}
 
 		// Count total pages
@@ -317,8 +318,8 @@ class Settings {
 				'format'    => '?paged=%#%',
 				'current'   => $paged,
 				'total'     => $total_pages,
-				'prev_text' => '« ' . escape_html( __( 'Zurück', 'wieczo-clamav' ) ),
-				'next_text' => escape_html( __( 'Weiter', 'wieczo-clamav' ) ) . ' »',
+				'prev_text' => '« ' . escape_html( __( 'Zurück', 'wieczos-virus-scanner' ) ),
+				'next_text' => escape_html( __( 'Weiter', 'wieczos-virus-scanner' ) ) . ' »',
 			] );
 		}
 	}

@@ -32,7 +32,7 @@ class ClamAV {
 
 		// Check if the file exists
 		if ( ! $wp_filesystem->exists( $filepath ) ) {
-			$file['error'] = __( 'Die hochgeladene Datei konnte nicht gefunden werden.', 'wieczo-clamav' );
+			$file['error'] = __( 'Die hochgeladene Datei konnte nicht gefunden werden.', 'wieczos-virus-scanner' );
 
 			return $file;
 		}
@@ -42,7 +42,7 @@ class ClamAV {
 		$socket = fsockopen( $this->host, $this->port, $errorCode, $errorMessage, $this->timeout );
 
 		if ( ! $socket ) {
-			$file['error'] = __( 'Konnte keine Verbindung zum Virenscanner herstellen.', 'wieczo-clamav' );
+			$file['error'] = __( 'Konnte keine Verbindung zum Virenscanner herstellen.', 'wieczos-virus-scanner' );
 
 			return $file;
 		}
@@ -56,7 +56,7 @@ class ClamAV {
 		if ( ! $handle ) {
 			// phpcs:ignore
 			fclose( $socket );
-			$file['error'] = __( 'Konnte die hochgeladene Datei nicht lesen.', 'wieczo-clamav' );
+			$file['error'] = __( 'Konnte die hochgeladene Datei nicht lesen.', 'wieczos-virus-scanner' );
 
 			return $file;
 		}
@@ -88,7 +88,7 @@ class ClamAV {
 		if ( str_contains( $response, 'FOUND' ) ) {
 			$this->logVirus( $filename );
 			/* translators: %s is replaced with the filename which contains a virus */
-			$file['error'] = sprintf( __( 'Die hochgeladene Datei "%s" ist mit einem Virus infiziert und wurde abgelehnt.', 'wieczo-clamav' ), $filename );
+			$file['error'] = sprintf( __( 'Die hochgeladene Datei "%s" ist mit einem Virus infiziert und wurde abgelehnt.', 'wieczos-virus-scanner' ), $filename );
 		}
 
 		return $file;

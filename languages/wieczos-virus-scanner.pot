@@ -4,138 +4,136 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Wieczo's Virus Scanner 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wieczo-clamav\n"
-"POT-Creation-Date: 2024-10-11T00:48:23+00:00\n"
-"PO-Revision-Date: 2024-10-11 02:52+0200\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: de\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.5\n"
-"X-Domain: wieczo-clamav\n"
+"POT-Creation-Date: 2024-10-11T00:48:23+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.11.0\n"
+"X-Domain: wieczos-virus-scanner\n"
 
 #. Plugin Name of the plugin
 #: wieczo-clamav.php
 msgid "Wieczo's Virus Scanner"
-msgstr "Wieczo's Virus Scanner"
+msgstr ""
 
 #. Plugin URI of the plugin
 #: wieczo-clamav.php
 msgid "https://wieczo.net/wieczo-clamav"
-msgstr "https://wieczo.net/wieczo-clamav"
+msgstr ""
 
 #. Description of the plugin
 #: wieczo-clamav.php
 msgid "Untersuche hochgeladene Dateien auf Viren und Malware mit ClamAV."
-msgstr "Untersuche hochgeladene Dateien auf Viren und Malware mit ClamAV."
+msgstr ""
 
 #. Author of the plugin
 #: wieczo-clamav.php
 msgid "Thomas Wieczorek"
-msgstr "Thomas Wieczorek"
+msgstr ""
 
 #. Author URI of the plugin
 #: wieczo-clamav.php
 msgid "https://wieczo.net"
-msgstr "https://wieczo.net"
+msgstr ""
 
 #: src/ClamAV/ClamAV.php:28
 msgid "Konnte keine Verbindung zum Virenscanner herstellen."
-msgstr "Konnte keine Verbindung zum Virenscanner herstellen."
+msgstr ""
 
 #: src/ClamAV/ClamAV.php:39
 msgid "Konnte die hochgeladene Datei nicht lesen."
-msgstr "Konnte die hochgeladene Datei nicht lesen."
+msgstr ""
 
 #: src/ClamAV/ClamAV.php:61
-msgid ""
-"Die hochgeladene Datei \"%s\" ist mit einem Virus infiziert und wurde "
-"abgelehnt."
+msgid "Die hochgeladene Datei \"%s\" ist mit einem Virus infiziert und wurde abgelehnt."
 msgstr ""
-"Die hochgeladene Datei \"%s\" ist mit einem Virus infiziert und wurde "
-"abgelehnt."
 
-#: src/ClamAV/Settings.php:20 src/ClamAV/Settings.php:48
+#: src/ClamAV/Settings.php:20
+#: src/ClamAV/Settings.php:48
 msgid "ClamAV Scanner Einstellungen"
-msgstr "ClamAV Scanner Einstellungen"
+msgstr ""
 
-#: src/ClamAV/Settings.php:21 src/ClamAV/Settings.php:89
+#: src/ClamAV/Settings.php:21
+#: src/ClamAV/Settings.php:89
 msgid "ClamAV Einstellungen"
-msgstr "ClamAV Einstellungen"
+msgstr ""
 
-#: src/ClamAV/Settings.php:30 src/ClamAV/Settings.php:153
+#: src/ClamAV/Settings.php:30
+#: src/ClamAV/Settings.php:153
 msgid "ClamAV Datei-Scanner"
-msgstr "ClamAV Datei-Scanner"
+msgstr ""
 
 #: src/ClamAV/Settings.php:31
 msgid "ClamAV Scanner"
-msgstr "ClamAV Scanner"
+msgstr ""
 
-#: src/ClamAV/Settings.php:44 src/ClamAV/Settings.php:169
+#: src/ClamAV/Settings.php:44
+#: src/ClamAV/Settings.php:169
 msgid "Du hast keine Berechtigung für diesen Vorgang."
-msgstr "Du hast keine Berechtigung für diesen Vorgang."
+msgstr ""
 
 #: src/ClamAV/Settings.php:70
 msgid "Hostname von ClamAV"
-msgstr "Hostname von ClamAV"
-
-#: src/ClamAV/Settings.php:71 src/ClamAV/Settings.php:125
-msgid ""
-"Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn "
-"es lokal läuft, z.B. localhost"
 msgstr ""
-"Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn "
-"es lokal läuft, z.B. localhost"
+
+#: src/ClamAV/Settings.php:71
+#: src/ClamAV/Settings.php:125
+msgid "Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn es lokal läuft, z.B. localhost"
+msgstr ""
 
 #: src/ClamAV/Settings.php:76
 msgid "Port von ClamAV"
-msgstr "Port von ClamAV"
+msgstr ""
 
-#: src/ClamAV/Settings.php:77 src/ClamAV/Settings.php:133
+#: src/ClamAV/Settings.php:77
+#: src/ClamAV/Settings.php:133
 msgid "Der Standardwert ist 3310"
-msgstr "Der Standardwert ist 3310"
+msgstr ""
 
 #: src/ClamAV/Settings.php:82
 msgid "Nach wie viel Sekunden soll die Verbindung abgebrochen werden"
-msgstr "Nach wie viel Sekunden soll die Verbindung abgebrochen werden"
+msgstr ""
 
-#: src/ClamAV/Settings.php:83 src/ClamAV/Settings.php:141
+#: src/ClamAV/Settings.php:83
+#: src/ClamAV/Settings.php:141
 msgid "Der Standartwert ist 30 Sekunden"
-msgstr "Der Standartwert ist 30 Sekunden"
+msgstr ""
 
 #: src/ClamAV/Settings.php:95
 msgid "ClamAV Host"
-msgstr "ClamAV Host"
+msgstr ""
 
 #: src/ClamAV/Settings.php:102
 msgid "ClamAV Port"
-msgstr "ClamAV Port"
+msgstr ""
 
 #: src/ClamAV/Settings.php:109
 msgid "Timeout"
-msgstr "Timeout"
+msgstr ""
 
 #: src/ClamAV/Settings.php:118
 msgid "Hier findest du die ClamAV Verbindungsoptionen"
-msgstr "Hier findest du die ClamAV Verbindungsoptionen"
+msgstr ""
 
 #: src/ClamAV/Settings.php:157
 msgid "Wähle eine Datei zum Scannen aus:"
-msgstr "Wähle eine Datei zum Scannen aus:"
+msgstr ""
 
 #: src/ClamAV/Settings.php:160
 msgid "Datei scannen"
-msgstr "Datei scannen"
+msgstr ""
 
 #: src/ClamAV/Settings.php:172
 msgid "Ungültiger Sicherheits-Token"
-msgstr "Ungültiger Sicherheits-Token"
+msgstr ""
 
 #: src/ClamAV/Settings.php:199
 msgid "Fehler beim Hochladen der Datei: "
-msgstr "Fehler beim Hochladen der Datei: "
+msgstr ""
 
 #: src/ClamAV/Settings.php:202
 msgid "Keine Datei hochgeladen."
-msgstr "Keine Datei hochgeladen."
+msgstr ""
