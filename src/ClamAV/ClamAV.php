@@ -106,8 +106,8 @@ class ClamAV {
 
 		// Data to insert
 		$data = [
-			'user_name'  => $username,
-			'filename'   => $filename,
+			'user_name'  => sanitize_text_field( $username ),
+			'filename'   => sanitize_text_field( $filename ),
 			'created_at' => current_time( 'mysql' ) // Aktuelles Datum im MySQL-Format
 		];
 
@@ -115,6 +115,7 @@ class ClamAV {
 		$formats = [ '%s', '%s', '%s' ];
 
 		// Insert data into the table
+		// phpcs:ignore
 		$wpdb->insert( $tableName, $data, $formats );
 	}
 }

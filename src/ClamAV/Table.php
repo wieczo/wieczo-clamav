@@ -32,6 +32,7 @@ SQL;
 		$tableName = $wpdb->prefix . Config::TABLE_LOGS;
 
 		// Tabelle löschen
-		$wpdb->query( "DROP TABLE IF EXISTS $tableName" );
+		// phpcs:ignore
+		$wpdb->query( $wpdb->prepare( "DROP TABLE IF EXISTS %s", $tableName ) );
 	}
 }

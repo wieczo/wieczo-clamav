@@ -224,35 +224,54 @@ class Settings {
 
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . Config::TABLE_LOGS;
+		$tableName = $wpdb->prefix . Config::TABLE_LOGS;
 
 		// Entries per page
-		$per_page = 10;
+		$entriesPerPage = 10;
 
 		// Current page
+		// Check if the nonce is set and correct
+		if ( isset( $_GET['_wpnonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'paginate_nonce_action' ) ) {
+			wp_die( esc_html( __( 'Ungültige Paginierungsanfrage.', 'wieczo-clamav' ) ) );
+		}
 		$paged = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
 
 		// Calculate offset
-		$offset = ( $paged - 1 ) * $per_page;
+		$offset = ( $paged - 1 ) * $entriesPerPage;
 
 		// Total Count of entries
-		$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM $table_name" );
+        $cacheKeyTotalItems = 'wieczo-clamav-scan-total-items-' . $entriesPerPage;
+        $totalItems = wp_cache_get($cacheKeyTotalItems);
+        if ( false === $totalItems) {
+            // phpcs:ignore
+	        $totalItems = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %s", $tableName ) );
+
+            // Cache for a minute
+            wp_cache_set($cacheKeyTotalItems, $totalItems, '', 60);
+        }
 
 		// Select the limited data
-		$results = $wpdb->get_results( $wpdb->prepare(
-			"SELECT * FROM $table_name LIMIT %d OFFSET %d",
-			$per_page, $offset
-		) );
+        $cacheKeyResults = 'wieczo-clamav-scan-results-' . $entriesPerPage . '-' . $offset;
+        $results = wp_cache_get($cacheKeyResults);
+        if ( false === $results ) {
+	        // phpcs:ignore
+	        $results = $wpdb->get_results( $wpdb->prepare(
+		        "SELECT * FROM %s LIMIT %d OFFSET %d",
+		        $tableName, $entriesPerPage, $offset
+	        ) );
+
+            wp_cache_set($cacheKeyResults, $results, '', 60);
+        }
 
 		// Display the table
 		if ( ! empty( $results ) ) {
 			echo '<table class="wp-list-table widefat fixed striped tablesorter">';
 			echo '<thead>
             <tr>
-                <th>' . __( 'ID', 'wieczo-clamav' ) . '</th>
-                <th>' . __( 'Benutzername', 'wieczo-clamav' ) . '</th>
-                <th>' . __( 'Dateiname', 'wieczo-clamav' ) . '</th>
-                <th>' . __( 'Erstellungsdatum', 'wieczo-clamav' ) . '</th>
+                <th>' . esc_html( __( 'ID', 'wieczo-clamav' ) ) . '</th>
+                <th>' . esc_html( __( 'Benutzername', 'wieczo-clamav' ) ) . '</th>
+                <th>' . esc_html( __( 'Dateiname', 'wieczo-clamav' ) ) . '</th>
+                <th>' . esc_html( __( 'Erstellungsdatum', 'wieczo-clamav' ) ) . '</th>
             </tr>
           </thead>';
 			echo '<tbody>';
@@ -273,6 +292,7 @@ class Settings {
 
 				echo '<tr>';
 				echo '<td>' . esc_html( $row->id ) . '</td>';
+				// phpcs:ignore
 				echo '<td>' . $userNameWithLink . '</td>';
 				echo '<td>' . esc_html( $row->filename ) . '</td>';
 				echo '<td>' . esc_html( date_i18n( get_option( 'date_format' ), strtotime( $row->created_at ) ) ) . '</td>';
@@ -282,21 +302,23 @@ class Settings {
 			echo '</tbody>';
 			echo '</table>';
 		} else {
-			echo '<p>' . __( 'Keine Daten gefunden.', 'wieczo-clamav' ) . '</p>';
+			echo '<p>' . esc_html( __( 'Keine Daten gefunden.', 'wieczo-clamav' ) ) . '</p>';
 		}
 
 		// Count total pages
-		$total_pages = ceil( $total_items / $per_page );
+		$total_pages = ceil( $totalItems / $entriesPerPage );
 
 		// Show pagination links if there are more pages
 		if ( $total_pages > 1 ) {
+			$nonce = wp_create_nonce( 'paginate_nonce_action' );
+			// phpcs:ignore
 			echo paginate_links( [
-				'base'      => add_query_arg( 'paged', '%#%' ),
+				'base'      => add_query_arg( [ 'paged', '%#%', '_wpnonce' => $nonce ] ),
 				'format'    => '?paged=%#%',
 				'current'   => $paged,
 				'total'     => $total_pages,
-				'prev_text' => '« ' . __( 'Zurück', 'wieczo-clamav' ),
-				'next_text' => __( 'Weiter', 'wieczo-clamav' ) . ' »',
+				'prev_text' => '« ' . escape_html( __( 'Zurück', 'wieczo-clamav' ) ),
+				'next_text' => escape_html( __( 'Weiter', 'wieczo-clamav' ) ) . ' »',
 			] );
 		}
 	}
