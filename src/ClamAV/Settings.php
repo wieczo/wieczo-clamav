@@ -30,7 +30,7 @@ class Settings {
 			__( 'ClamAV Datei-Scanner', 'wieczos-virus-scanner' ),
 			__( 'ClamAV Scanner', 'wieczos-virus-scanner' ),
 			'manage_options',
-			'wieczo-clamav-test',    // Slug of the submenu
+			'wieczos-virus-scanner-test',    // Slug of the submenu
 			array( $this, 'showTestPage' ) // Callback for the page
 		);
 
@@ -39,7 +39,7 @@ class Settings {
 			__( 'Logs', 'wieczos-virus-scanner' ),
 			__( 'Logs', 'wieczos-virus-scanner' ),
 			'manage_options',
-			'wieczo-clamav-logs',    // Slug of the submenu
+			'wieczos-virus-scanner-logs',    // Slug of the submenu
 			array( $this, 'showLogsPage' ) // Callback for the page
 		);
 	}
@@ -213,7 +213,7 @@ class Settings {
 				$scan_result_url = add_query_arg( [
 					'scan_result' => urlencode( $fileArray['error'] ?? 'OK' ),
 					'_wpnonce'    => $nonce,
-				], admin_url( 'admin.php?page=wieczo-clamav-test' ) );
+				], admin_url( 'admin.php?page=wieczos-virus-scanner-test' ) );
 				wp_redirect( $scan_result_url );
 				exit;
 			} else {
@@ -245,7 +245,7 @@ class Settings {
 		$offset = ( $paged - 1 ) * $entriesPerPage;
 
 		// Total Count of entries
-		$cacheKeyTotalItems = 'wieczo-clamav-scan-total-items-' . $entriesPerPage;
+		$cacheKeyTotalItems = 'wieczos-virus-scanner-scan-total-items-' . $entriesPerPage;
 		$totalItems         = wp_cache_get( $cacheKeyTotalItems );
 		if ( false === $totalItems ) {
 			// phpcs:ignore
@@ -256,7 +256,7 @@ class Settings {
 		}
 
 		// Select the limited data
-		$cacheKeyResults = 'wieczo-clamav-scan-results-' . $entriesPerPage . '-' . $offset;
+		$cacheKeyResults = 'wieczos-virus-scanner-scan-results-' . $entriesPerPage . '-' . $offset;
 		$results         = wp_cache_get( $cacheKeyResults );
 		if ( false === $results ) {
 			// phpcs:ignore
