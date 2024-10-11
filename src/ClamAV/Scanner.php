@@ -29,7 +29,7 @@ class Scanner {
 
 		$filepath = $file['tmp_name'];
 
-		if ( $this->scanFile( $filepath, $errorMessage ) ) {
+		if ( $this->scanFile( $filepath, ScanType::UPLOAD_SCAN, $errorMessage ) ) {
 			$file['error'] = $errorMessage;
 		}
 
@@ -38,11 +38,11 @@ class Scanner {
 
 	/**
 	 * @param $filePath      Path to the file to scan
-	 * @param null $errorMessage Error Message which occurred when trying to open a socket, read the file or scan it for a virus
+	 * @param string|null $errorMessage Error Message which occurred when trying to open a socket, read the file or scan it for a virus
 	 *
 	 * @return bool|null Returns true if a virus was found or if an error occurred.
 	 */
-	public function scanFile( $filePath, &$errorMessage = null ): ?bool {
+	public function scanFile( $filePath, ScanType $scanType, ?string &$errorMessage = null ): ?bool {
 		global $wp_filesystem;
 
 		// Initialisiere WP_Filesystem
@@ -60,7 +60,7 @@ class Scanner {
 		if ( ! $wp_filesystem->exists( $path ) ) {
 			$error        = UploadError::FILE_NOT_FOUND;
 			$errorMessage = $error->message( $filename );
-			$this->logError( $filePath, $error );
+			$this->logError( $filePath, $error, $scanType );
 
 			return null;
 		}
@@ -72,7 +72,7 @@ class Scanner {
 		if ( ! $socket ) {
 			$error        = UploadError::CONNECTION_REFUSED;
 			$errorMessage = $error->message( $filename );
-			$this->logError( $filePath, $error );
+			$this->logError( $filePath, $error, $scanType );
 
 			return null;
 		}
@@ -88,7 +88,7 @@ class Scanner {
 			fclose( $socket );
 			$error        = UploadError::CANNOT_READ;
 			$errorMessage = $error->message( $filename );
-			$this->logError( $filePath, $error );
+			$this->logError( $filePath, $error, $scanType );
 
 			return null;
 		}
@@ -120,7 +120,7 @@ class Scanner {
 		if ( str_contains( $response, 'FOUND' ) ) {
 			$error        = UploadError::VIRUS_FOUND;
 			$errorMessage = $error->message( $filename );
-			$this->logError( $filePath, $error );
+			$this->logError( $filePath, $error, $scanType );
 
 			return true;
 		}
@@ -135,7 +135,7 @@ class Scanner {
 	 *
 	 * @return void
 	 */
-	private function logError( string $filename, UploadError $error ): void {
+	private function logError( string $filename, UploadError $error, ScanType $scanType ): void {
 		global $wpdb;
 
 		// Table name
@@ -150,6 +150,7 @@ class Scanner {
 			'user_name'  => sanitize_text_field( $username ),
 			'filename'   => sanitize_text_field( $filename ),
 			'error_type' => $error->name,
+			'source'     => $scanType->name,
 			'created_at' => current_time( 'mysql' ) // Aktuelles Datum im MySQL-Format
 		];
 

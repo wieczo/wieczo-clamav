@@ -280,6 +280,7 @@ class Settings {
                 <th>' . esc_html( __( 'Benutzername', 'wieczos-virus-scanner' ) ) . '</th>
                 <th>' . esc_html( __( 'Dateiname', 'wieczos-virus-scanner' ) ) . '</th>
                 <th>' . esc_html( __( 'Fehlertyp', 'wieczos-virus-scanner' ) ) . '</th>
+                <th>' . esc_html( __( 'Scan-Typ', 'wieczos-virus-scanner' ) ) . '</th>
                 <th>' . esc_html( __( 'Erstellungsdatum', 'wieczos-virus-scanner' ) ) . '</th>
             </tr>
           </thead>';
@@ -305,6 +306,7 @@ class Settings {
 				echo '<td>' . $userNameWithLink . '</td>';
 				echo '<td>' . esc_html( $row->filename ) . '</td>';
 				echo '<td>' . esc_html( UploadError::mapNameToEnum( $row->error_type )?->message( $row->filename ) ) . '</td>';
+				echo '<td>' . esc_html( ScanType::mapNameToEnum( $row->source )?->message() ) . '</td>';
 				echo '<td>' . esc_html( date_i18n( get_option( 'date_format' ), strtotime( $row->created_at ) ) ) . '</td>';
 				echo '</tr>';
 			}
@@ -402,7 +404,7 @@ class Settings {
 		$filesToScan = array_slice( $files, $offset, $this->batchSize );
 		foreach ( $filesToScan as $file ) {
 
-			if ( $scanner->scanFile( $file, $error ) === true ) {
+			if ( $scanner->scanFile( $file, ScanType::WORDPRESS_SCAN, $error ) === true ) {
 				$infectedFiles[] = $file;
 			};
 		}
