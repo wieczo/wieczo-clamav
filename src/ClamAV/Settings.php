@@ -3,10 +3,18 @@
 namespace Wieczo\WordPress\Plugins\ClamAV;
 
 class Settings {
+	private int $batchSize = 500;
+
 	public function __construct() {
 		add_action( 'admin_menu', [ $this, 'addAdminMenu' ] );
 		add_action( 'admin_init', [ $this, 'initSettings' ] );
-		add_action( 'admin_post_wieczo_clamav_scan_file', array( $this, 'scanUploadedFile' ) );
+		add_action( 'admin_post_wieczo_clamav_scan_file', [ $this, 'scanUploadedFile' ] );
+
+		// Scripts for the batch scan
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScripts' ) );
+
+		// AJAX-Handler for the batch scan
+		add_action( 'wp_ajax_batchScan', array( $this, 'handleAjaxBatchScan' ) );
 	}
 
 	/**
@@ -32,6 +40,15 @@ class Settings {
 			'manage_options',
 			'wieczos-virus-scanner-test',    // Slug of the submenu
 			array( $this, 'showTestPage' ) // Callback for the page
+		);
+
+		add_submenu_page(
+			'wieczos-virus-scanner',    // slug of the main menu
+			__( 'WordPress Scan', 'wieczos-virus-scanner' ),
+			__( 'WordPress Scan', 'wieczos-virus-scanner' ),
+			'manage_options',
+			'full-scan',    // Slug of the submenu
+			array( $this, 'showFullScanPage' ) // Callback for the page
 		);
 
 		add_submenu_page(
@@ -206,7 +223,7 @@ class Settings {
 					'name'     => basename( $movefile['file'] ),
 				];
 				$scanner   = new Scanner();
-				$scanner->scanFile( $fileArray );
+				$scanner->scanUpload( $fileArray );
 
 				// Show scan results
 				$nonce           = wp_create_nonce( 'file_check_nonce' );
@@ -327,6 +344,91 @@ class Settings {
 				'next_text' => escape_html( __( 'Weiter', 'wieczos-virus-scanner' ) ) . ' »',
 			] );
 		}
+	}
+
+	public function showFullScanPage() {
+		$files = Scanner::collectAllFiles( \ABSPATH );
+		?>
+        <div class="wrap">
+            <h1><?php echo __('Voller WordPress Scan', 'wieczos-virus-scanner') ?></h1>
+            <div id="progress-container"
+                 style="width: 100%; background-color: #f3f3f3; border: 1px solid #ddd; padding: 5px;">
+                <div id="progress-bar"
+                     style="width: 0%; height: 30px; background-color: #4caf50; text-align: center; line-height: 30px; color: white;">
+                    0%
+                </div>
+            </div>
+            <p id="progress-text"> <?php echo esc_html( sprintf( __( 'Es wurden %1$s von %2$s Dateien gescannt.', 'wieczos-virus-scanner' ), 0, count( $files ) ) ) ?></p>
+            <button id="start-scan" class="button button-primary"><?php echo __('Scan starten', 'wieczos-virus-scanner') ?></button>
+        </div>
+		<?php
+	}
+
+	public function enqueueScripts( $hook ) {
+		// Woher kommt clamav-einstellungen_page_full-scan statt wieczos-virus-scanner_page_full-scan
+		if ( $hook !== 'clamav-einstellungen_page_full-scan' ) {
+			return;
+		}
+
+		// JavaScript for AJAX Batching
+		wp_enqueue_script( 'full-scan-script', plugins_url( 'assets/js/batch-scan.js', \WIECZOS_VIRUS_SCANNER_PLUGIN_DIR ), [ 'jquery' ], '0.1', true );
+
+		// Localized data for the JS
+		$files = Scanner::collectAllFiles( \ABSPATH );
+		wp_localize_script( 'full-scan-script', 'batchScanData', [
+			'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
+			'nonce'            => wp_create_nonce( 'wieczos-virus-scanner-batch_scan_nonce' ),
+			'totalFiles'       => count( $files ), // Gesamtzahl der zu scannenden Dateien
+			'localizedStrings' => [
+				/*
+				    translators: %1$s is replaced with the count of the files which have been already scanned,
+				    %1$s is replaced with the total count of all files
+				*/
+				'filesScanned' => __( 'Es wurden %1$s von %2$s Dateien gescannt.', 'wieczos-virus-scanner' ),
+				/* translators: %1$s stand for the total of all infected files. */
+				'scanFinished' => __( 'Alle Dateien wurden erfolgreich gescannt! %1$s infizierte Dateien gefunden', 'wieczos-virus-scanner' ),
+				'scanError'    => __( 'Es ist ein Fehler beim Scannen aufgetreten!', 'wieczos-virus-scanner' ),
+			]
+		] );
+	}
+
+	public function handleAjaxBatchScan() {
+		check_ajax_referer( 'wieczos-virus-scanner-batch_scan_nonce', 'security' );
+
+		// Pick the offset from the request (how many files have been handled)
+		$offset        = isset( $_POST['offset'] ) ? intval( $_POST['offset'] ) : 0;
+		$infectedFiles = $_POST['infectedFiles'] ?? [];
+		$scanner       = new Scanner();
+		$wordpressRoot = \ABSPATH;
+		$files         = $scanner->collectAllFiles( $wordpressRoot );
+		$totalFiles    = count( $files );
+
+		$filesToScan = array_slice( $files, $offset, $this->batchSize );
+		foreach ( $filesToScan as $file ) {
+			if ( $scanner->scanFile( $file ) ) {
+				$infectedFiles[] = $file;
+			};
+		}
+		// Work on the next batch
+		$processedFiles = min( $offset + $this->batchSize, $totalFiles );
+
+		// When all files have been scanned, send the finished statt
+		if ( $processedFiles >= $totalFiles ) {
+			wp_send_json_success( array(
+				'finished'       => true,
+				'processedFiles' => $processedFiles,
+				'infectedFiles'  => $infectedFiles
+			) );
+		} else {
+			wp_send_json_success( array(
+				'finished'       => false,
+				'offset'         => $processedFiles,
+				'processedFiles' => $processedFiles,
+				'infectedFiles'  => $infectedFiles,
+			) );
+		}
+
+		wp_die();
 	}
 }
 
