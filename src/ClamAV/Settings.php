@@ -262,29 +262,15 @@ class Settings {
 		$offset = ( $paged - 1 ) * $entriesPerPage;
 
 		// Total Count of entries
-		$cacheKeyTotalItems = 'wieczos-virus-scanner-scan-total-items-' . $entriesPerPage;
-		$totalItems         = wp_cache_get( $cacheKeyTotalItems );
-		if ( false === $totalItems ) {
-			// phpcs:ignore
-			$totalItems = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %s", $tableName ) );
-
-			// Cache for a minute
-			wp_cache_set( $cacheKeyTotalItems, $totalItems, '', 60 );
-		}
+		// phpcs:ignore
+		$totalItems = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %s", $tableName ) );
 
 		// Select the limited data
-		$cacheKeyResults = 'wieczos-virus-scanner-scan-results-' . $entriesPerPage . '-' . $offset;
-		$results         = wp_cache_get( $cacheKeyResults );
-		if ( false === $results ) {
-			// phpcs:ignore
-			$results = $wpdb->get_results( $wpdb->prepare(
-				"SELECT * FROM %s LIMIT %d OFFSET %d",
-				$tableName, $entriesPerPage, $offset
-			) );
-
-			// Cache for a minute
-			wp_cache_set( $cacheKeyResults, $results, '', 60 );
-		}
+		// phpcs:ignore
+		$results = $wpdb->get_results( $wpdb->prepare(
+			"SELECT * FROM %s LIMIT %d OFFSET %d",
+			$tableName, $entriesPerPage, $offset
+		) );
 
 		// Display the table
 		if ( ! empty( $results ) ) {
@@ -350,7 +336,7 @@ class Settings {
 		$files = Scanner::collectAllFiles( \ABSPATH );
 		?>
         <div class="wrap">
-            <h1><?php echo __('Voller WordPress Scan', 'wieczos-virus-scanner') ?></h1>
+            <h1><?php echo __( 'Voller WordPress Scan', 'wieczos-virus-scanner' ) ?></h1>
             <div id="progress-container"
                  style="width: 100%; background-color: #f3f3f3; border: 1px solid #ddd; padding: 5px;">
                 <div id="progress-bar"
@@ -359,7 +345,8 @@ class Settings {
                 </div>
             </div>
             <p id="progress-text"> <?php echo esc_html( sprintf( __( 'Es wurden %1$s von %2$s Dateien gescannt.', 'wieczos-virus-scanner' ), 0, count( $files ) ) ) ?></p>
-            <button id="start-scan" class="button button-primary"><?php echo __('Scan starten', 'wieczos-virus-scanner') ?></button>
+            <button id="start-scan"
+                    class="button button-primary"><?php echo __( 'Scan starten', 'wieczos-virus-scanner' ) ?></button>
         </div>
 		<?php
 	}
