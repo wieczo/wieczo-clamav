@@ -26,7 +26,7 @@ require plugin_dir_path( __FILE__ ) . 'src/autoloader.php';
 // Initialize tables
 $tableUpdates = new Table();
 register_activation_hook( __FILE__, [ $tableUpdates, 'defineTable' ] );
-register_deactivation_hook( __FILE__, [ $tableUpdates, 'dropTable' ] );
+register_uninstall_hook( __FILE__, [ $tableUpdates, 'dropTable' ] );
 // Initialize Scanner for handling uploaded files
 $clamAV = new Scanner();
 
