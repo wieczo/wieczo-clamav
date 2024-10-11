@@ -1,5 +1,5 @@
 === Wieczo's Virus Scanner ===
-Contributors: Thomas Wieczorek
+Contributors: Thomas Wieczorek, Simon Neutert
 Tags: antivirus, malware, clamav, security, virus
 Requires at least: 6.0
 Tested up to: 6.7
@@ -34,6 +34,13 @@ It’s a great way to sharpen your skills and make a real impact.
 Just fork the repository, work on your ideas, and submit a pull request.
 We’ll review it as soon as possible and work together to make this plugin even better!
 
+== Contributors ==
+
+We want to thank all of our contributors! Here's a list of everyone who has helped make this project better:
+
+- [Thomas Wieczorek](https://github.com/wieczo) - Project Creator
+- [Simon Neutert](https://github.com/simonneutert) - Always an inspiration and contributes with his thoughts
+ and well-spoken arguments.
 == Installation ==
 
 === Manual Installation: ===

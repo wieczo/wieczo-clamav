@@ -1,12 +1,13 @@
 # Wieczo's Virus Scanner
-Contributors: Thomas Wieczorek
-Tags: antivirus, malware, clamav, security, virus
-Requires at least: 6.0
-Tested up to: 6.7
-Requires PHP: 8.2
-Stable tag: 1.0.0
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
+* Contributors: Thomas Wieczorek, Simon Neutert
+* Tags: antivirus, malware, clamav, security, virus
+* Requires at least: 6.0
+* Tested up to: 6.7
+* Requires PHP: 8.2
+* Stable tag: 1.0.0
+* License: GPLv2 or later
+* License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 A plugin to scan uploaded files for viruses with ClamAV.
 
@@ -33,6 +34,14 @@ You can help us by reporting bugs, suggesting new features, or improving the cod
 It’s a great way to sharpen your skills and make a real impact.
 Just fork the repository, work on your ideas, and submit a pull request.
 We’ll review it as soon as possible and work together to make this plugin even better!
+
+## Contributors
+
+We want to thank all of our contributors! Here's a list of everyone who has helped make this project better:
+
+- [Thomas Wieczorek](https://github.com/wieczo) - Project Creator
+- [Simon Neutert](https://github.com/simonneutert) - Always an inspiration and contributes with his thoughts 
+  and well-spoken arguments. 
 
 ## Installation
 
