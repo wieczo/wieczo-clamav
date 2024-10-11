@@ -258,19 +258,43 @@ class Settings {
 		}
 		$paged = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
 
-		// Calculate offset
+		// Get the filter value from the URL parameters
+		$errorTypeFilter = isset( $_GET['error_type'] ) ? sanitize_text_field( $_GET['error_type'] ) : '';
+
+		// Calculate offset for pagination
 		$offset = ( $paged - 1 ) * $entriesPerPage;
 
-		// Total Count of entries
-		// phpcs:ignore
-		$totalItems = $wpdb->get_var( "SELECT COUNT(*) FROM {$tableName}" );
+		// Create the WHERE clause if filtering by error_type
+		$whereClause = '';
+		if ( ! empty( $errorTypeFilter ) ) {
+			$whereClause = $wpdb->prepare( "WHERE error_type = %s", $errorTypeFilter );
+		}
 
-		// Select the limited data
-		// phpcs:ignore
+		// Total count of entries (filtered if necessary)
+		$totalItems = $wpdb->get_var( "SELECT COUNT(*) FROM {$tableName} {$whereClause}" );
+
+		// Fetch the results based on pagination and filter
 		$results = $wpdb->get_results( $wpdb->prepare(
-			"SELECT * FROM {$tableName} LIMIT %d OFFSET %d",
+			"SELECT * FROM {$tableName} {$whereClause} LIMIT %d OFFSET %d",
 			$entriesPerPage, $offset
 		) );
+
+		// Display the filter form
+		echo '<form method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '">';
+		echo '<input type="hidden" name="page" value="wieczos-virus-scanner-logs" />';
+		echo '<input type="hidden" name="paged" value="1" />'; // Ensure it resets to page 1 on filter
+		echo '<label for="error_type_filter">' . esc_html( __( 'Fehlertyp filtern:', 'wieczos-virus-scanner' ) ) . '</label>';
+		echo '<select id="error_type_filter" name="error_type">';
+		echo '<option value="">' . esc_html( __( 'Alle Fehlertypen', 'wieczos-virus-scanner' ) ) . '</option>';
+        foreach ( [UploadError::VIRUS_FOUND, UploadError::CANNOT_READ, UploadError::FILE_NOT_FOUND, UploadError::CONNECTION_REFUSED] as $uploadError ) {
+	        echo '<option value="' . esc_attr( $uploadError->name ) . '" ' . selected( $_GET['error_type'], $uploadError->name, false ) . '>' . esc_html( $uploadError->message('Dateiname') ) . '</option>';
+        }
+
+		// Add additional options here if needed
+		echo '</select>';
+		echo '<input type="submit" value="' . esc_html( __( 'Filtern', 'wieczos-virus-scanner' ) ) . '" />';
+		echo '</form>';
+
 		// Display the table
 		if ( ! empty( $results ) ) {
 			echo '<table class="wp-list-table widefat fixed striped tablesorter">';
@@ -295,10 +319,9 @@ class Settings {
 					$userLink         = get_edit_user_link( $user->ID );
 					$userNameWithLink = '<a href="' . esc_url( $userLink ) . '">' . esc_html( $row->user_name ) . '</a>';
 				} else {
-					// When the user's not found, just display the user_name
+					// When the user is not found, just display the user_name
 					$userNameWithLink = esc_html( $row->user_name );
 				}
-
 
 				echo '<tr>';
 				echo '<td>' . esc_html( $row->id ) . '</td>';
@@ -320,10 +343,19 @@ class Settings {
 		// Count total pages
 		$total_pages = ceil( $totalItems / $entriesPerPage );
 
-		// Show pagination links if there are more pages
+		// Show pagination links
 		if ( $total_pages > 1 ) {
 			$nonce = wp_create_nonce( 'paginate_nonce_action' );
-			// phpcs:ignore
+			$add_args = [
+				'page'      => 'wieczos-virus-scanner-logs', // Ensure the correct page is used
+				'_wpnonce'  => $nonce,
+			];
+
+			// Add the error_type filter to pagination if it's set
+			if ( ! empty( $errorTypeFilter ) ) {
+				$add_args['error_type'] = $errorTypeFilter;
+			}
+
 			echo paginate_links( [
 				'base'      => add_query_arg( 'paged', '%#%' ),
 				'format'    => '?paged=%#%',
@@ -331,7 +363,7 @@ class Settings {
 				'total'     => $total_pages,
 				'prev_text' => '« ' . esc_html( __( 'Zurück', 'wieczos-virus-scanner' ) ),
 				'next_text' => esc_html( __( 'Weiter', 'wieczos-virus-scanner' ) ) . ' »',
-				'add_args'  => [ '_wpnonce' => $nonce ] // Füge den Nonce zu den Links hinzu
+				'add_args'  => $add_args,
 			] );
 		}
 	}
