@@ -33,6 +33,15 @@ class Settings {
 			'wieczo-clamav-test',    // Slug of the submenu
 			array( $this, 'showTestPage' ) // Callback for the page
 		);
+
+		add_submenu_page(
+			'wieczo-clamav',    // slug of the main menu
+			__( 'Logs', 'wieczo-clamav' ),
+			__( 'Logs', 'wieczo-clamav' ),
+			'manage_options',
+			'wieczo-clamav-logs',    // Slug of the submenu
+			array( $this, 'showLogsPage' ) // Callback for the page
+		);
 	}
 
 	/**
@@ -208,6 +217,87 @@ class Settings {
 			}
 		} else {
 			wp_die( esc_html( __( 'Keine Datei hochgeladen.', 'wieczo-clamav' ) ) );
+		}
+	}
+
+	public function showLogsPage() {
+
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . Config::TABLE_LOGS;
+
+        // Entries per page
+		$per_page = 10;
+
+        // Current page
+		$paged = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
+
+        // Calculate offset
+		$offset = ( $paged - 1 ) * $per_page;
+
+        // Total Count of entries
+		$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM $table_name" );
+
+        // Select the limited data
+		$results = $wpdb->get_results( $wpdb->prepare(
+			"SELECT * FROM $table_name LIMIT %d OFFSET %d",
+			$per_page, $offset
+		) );
+
+        // Display the table
+		if ( ! empty( $results ) ) {
+			echo '<table class="wp-list-table widefat fixed striped tablesorter">';
+			echo '<thead>
+            <tr>
+                <th>' . __( 'ID', 'wieczo-clamav' ) . '</th>
+                <th>' . __( 'Benutzername', 'wieczo-clamav' ) . '</th>
+                <th>' . __( 'Dateiname', 'wieczo-clamav' ) . '</th>
+                <th>' . __( 'Erstellungsdatum', 'wieczo-clamav' ) . '</th>
+            </tr>
+          </thead>';
+			echo '<tbody>';
+
+			foreach ( $results as $row ) {
+                // Get user object by login
+				$user = get_user_by('login', $row->user_name);
+
+				// Get the user admin link
+				if ($user) {
+					$userLink = get_edit_user_link($user->ID);
+					$userNameWithLink = '<a href="' . esc_url($userLink) . '">' . esc_html($row->user_name) . '</a>';
+				} else {
+					// When the user's not found, just display the user_name
+					$userNameWithLink = esc_html($row->user_name);
+				}
+
+
+				echo '<tr>';
+				echo '<td>' . esc_html( $row->id ) . '</td>';
+				echo '<td>' . $userNameWithLink . '</td>';
+				echo '<td>' . esc_html( $row->filename ) . '</td>';
+				echo '<td>' . esc_html( date_i18n( get_option( 'date_format' ), strtotime( $row->created_at ) ) ) . '</td>';
+				echo '</tr>';
+			}
+
+			echo '</tbody>';
+			echo '</table>';
+		} else {
+			echo '<p>' . __( 'Keine Daten gefunden.', 'wieczo-clamav' ) . '</p>';
+		}
+
+        // Count total pages
+		$total_pages = ceil( $total_items / $per_page );
+
+        // Show pagination links if there are more pages
+		if ( $total_pages > 1 ) {
+			echo paginate_links( [
+				'base'      => add_query_arg( 'paged', '%#%' ),
+				'format'    => '?paged=%#%',
+				'current'   => $paged,
+				'total'     => $total_pages,
+				'prev_text' => '« ' . __( 'Zurück', 'wieczo-clamav' ),
+				'next_text' => __( 'Weiter', 'wieczo-clamav' ) . ' »',
+			] );
 		}
 	}
 }
