@@ -27,11 +27,11 @@ class Settings {
 
 		add_submenu_page(
 			'wieczo-clamav',    // slug of the main menu
-            __( 'ClamAV Datei-Scanner', 'wieczo-clamav' ),
+			__( 'ClamAV Datei-Scanner', 'wieczo-clamav' ),
 			__( 'ClamAV Scanner', 'wieczo-clamav' ),
 			'manage_options',
 			'wieczo-clamav-test',    // Slug of the submenu
-			array($this, 'showTestPage') // Callback for the page
+			array( $this, 'showTestPage' ) // Callback for the page
 		);
 	}
 
@@ -41,7 +41,7 @@ class Settings {
 	 */
 	public function showSettingsPage() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __('Du hast keine Berechtigung für diesen Vorgang.', 'wieczo-clamav') );
+			wp_die( esc_html( __( 'Du hast keine Berechtigung für diesen Vorgang.', 'wieczo-clamav' ) ) );
 		}
 		?>
         <div class="wrap">
@@ -115,49 +115,50 @@ class Settings {
 
 
 	public function settingsCB() {
-		echo __( 'Hier findest du die ClamAV Verbindungsoptionen', 'wieczo-clamav' );
+		echo esc_html( __( 'Hier findest du die ClamAV Verbindungsoptionen', 'wieczo-clamav' ) );
 	}
 
 	public function renderSettingHost() {
 		$host = esc_attr( get_option( 'clamav_host' ) );
 		?>
-        <input type="text" name="clamav_host" value="<?php echo $host; ?>"/>
-        <p class="description"><?php __( 'Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn es lokal läuft, z.B. localhost', 'wieczo-clamav' ) ?></p>
+        <input type="text" name="clamav_host" value="<?php echo esc_attr( $host ); ?>"/>
+        <p class="description"><?php esc_html( __( 'Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn es lokal läuft, z.B. localhost', 'wieczo-clamav' ) ) ?></p>
 		<?php
 	}
 
 	public function renderSettingPort() {
 		$port = (int) get_option( 'clamav_port' );
 		?>
-        <input type="text" name="clamav_port" value="<?php echo $port; ?>"/>
-        <p class="description"><?php __( 'Der Standardwert ist 3310', 'wieczo-clamav' ) ?></p>
+        <input type="text" name="clamav_port" value="<?php echo esc_attr( $port ); ?>"/>
+        <p class="description"><?php esc_html( __( 'Der Standardwert ist 3310', 'wieczo-clamav' ) ) ?></p>
 		<?php
 	}
 
 	public function renderSettingTimeout() {
 		$timeout = (int) get_option( 'clamav_timeout' );
 		?>
-        <input type="text" name="clamav_timeout" value="<?php echo $timeout; ?>"/>
-        <p class="description"><?php __( 'Der Standartwert ist 30 Sekunden', 'wieczo-clamav' ) ?></p>
+        <input type="text" name="clamav_timeout" value="<?php echo esc_attr( $timeout ); ?>"/>
+        <p class="description"><?php esc_html( __( 'Der Standartwert ist 30 Sekunden', 'wieczo-clamav' ) ) ?></p>
 		<?php
 	}
 
 	public function showTestPage() {
-        $scanResult = isset($_GET['scan_result']) ? urldecode($_GET['scan_result']) : null;
-        if ($scanResult) {
-	        echo '<div class="notice notice-success"><p><strong>Scan Ergebnis:</strong> ' . esc_html($scanResult) . '</p></div>';
-        }
+		$scanResult = isset( $_GET['scan_result'] ) ? urldecode( wp_unslash( $_GET['scan_result'] ) ) : null;
+		if ( $scanResult ) {
+			echo '<div class="notice notice-success"><p><strong>Scan Ergebnis:</strong> ' . esc_html( $scanResult ) . '</p></div>';
+		}
 		?>
 
         <div class="wrap">
             <h1><?php __( 'ClamAV Datei-Scanner', 'wieczo-clamav' ) ?></h1>
-            <form method="post" enctype="multipart/form-data" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+            <form method="post" enctype="multipart/form-data"
+                  action="<?php echo esc_attr( admin_url( 'admin-post.php' ) ); ?>">
                 <input type="hidden" name="action" value="wieczo_clamav_scan_file">
-	            <?php wp_nonce_field('clamav_scan_file_action', 'clamav_scan_file_nonce'); ?>
-                <label for="clamav-file-upload"><?php __( 'Wähle eine Datei zum Scannen aus:', 'wieczo-clamav' ) ?></label>
+				<?php wp_nonce_field( 'clamav_scan_file_action', 'clamav_scan_file_nonce' ); ?>
+                <label for="clamav-file-upload"><?php esc_html( __( 'Wähle eine Datei zum Scannen aus:', 'wieczo-clamav' ) ) ?></label>
                 <input type="file" name="clamav_file" id="clamav-file-upload" required>
 
-				<?php submit_button( __( 'Datei scannen', 'wieczo-clamav' ) ); ?>
+				<?php submit_button( esc_html( __( 'Datei scannen', 'wieczo-clamav' ) ) ); ?>
             </form>
         </div>
 		<?php
@@ -166,13 +167,14 @@ class Settings {
 	public function scanUploadedFile() {
 		// Check policies.
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __('Du hast keine Berechtigung für diesen Vorgang.', 'wieczo-clamav') );
+			wp_die( esc_html( __( 'Du hast keine Berechtigung für diesen Vorgang.', 'wieczo-clamav' ) ) );
 		}
-		if (!isset($_POST['clamav_scan_file_nonce']) || !wp_verify_nonce($_POST['clamav_scan_file_nonce'], 'clamav_scan_file_action')) {
-			wp_die( __('Ungültiger Sicherheits-Token', 'wieczo-clamav') );
+		if ( ! isset( $_POST['clamav_scan_file_nonce'] ) || ! wp_verify_nonce( wp_unslash( $_POST['clamav_scan_file_nonce'] ), 'clamav_scan_file_action' ) ) {
+			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token', 'wieczo-clamav' ) ) );
 		}
 		// Prüfen, ob eine Datei hochgeladen wurde
-		if ( isset( $_FILES['clamav_file'] ) && $_FILES['clamav_file']['size'] > 0 ) {
+		if ( isset( $_FILES['clamav_file'] ) && isset( $_FILES['clamav_file']['size'] ) && $_FILES['clamav_file']['size'] > 0 ) {
+            // phpcs:ignore
 			$uploaded_file = $_FILES['clamav_file'];
 
 			// Validieren und Datei speichern
@@ -184,22 +186,22 @@ class Settings {
 				$file_path = $movefile['file'];
 
 				// Hier die ClamAV-Integration vornehmen
-                $fileArray = [
-	                'tmp_name' => $movefile['file'],
-	                'name'     => basename($movefile['file']),
-                ];
-				$scanner = new ClamAV();
-                $scanner->scanFile($fileArray);
+				$fileArray = [
+					'tmp_name' => $movefile['file'],
+					'name'     => basename( $movefile['file'] ),
+				];
+				$scanner   = new ClamAV();
+				$scanner->scanFile( $fileArray );
 
 				// Zeige Scan-Ergebnis
 				wp_redirect( admin_url( 'admin.php?page=wieczo-clamav-test&scan_result=' . urlencode( $fileArray['error'] ?? 'Alles in Ordnung' ) ) );
 				exit;
 			} else {
 				// Fehler beim Hochladen
-				wp_die( __('Fehler beim Hochladen der Datei: ', 'wieczo-clamav') . esc_html( $movefile['error'] ) );
+				wp_die( esc_html( __( 'Fehler beim Hochladen der Datei: ', 'wieczo-clamav' ) . esc_html( $movefile['error'] ) ) );
 			}
 		} else {
-			wp_die( __('Keine Datei hochgeladen.', 'wieczo-clamav' ) );
+			wp_die( esc_html( __( 'Keine Datei hochgeladen.', 'wieczo-clamav' ) ) );
 		}
 	}
 }

@@ -6,8 +6,8 @@ Description: Untersuche hochgeladene Dateien auf Viren und Malware mit ClamAV.
 Version: 1.0.0
 Author: Thomas Wieczorek
 Author URI: https://wieczo.net
-License: MIT License
-License URI: https://github.com/wieczo/wieczo-clamav/blob/main/LICENSE
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: wieczo-clamav
 Domain Path: /languages
 */
