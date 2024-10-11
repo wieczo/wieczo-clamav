@@ -21,7 +21,7 @@ use Wieczo\WordPress\Plugins\ClamAV\Enqueuer;
 use Wieczo\WordPress\Plugins\ClamAV\Settings;
 use Wieczo\WordPress\Plugins\ClamAV\Table;
 
-define( 'WIECZO_CLAMAV_PLUGIN_DIR', dirname( realpath( __FILE__ ) ) . '/wieczo-clamav/');
+define( 'WIECZO_CLAMAV_PLUGIN_DIR', dirname( realpath( __FILE__ ) ) . '/wieczo-clamav/' );
 require plugin_dir_path( __FILE__ ) . 'src/autoloader.php';
 // Initialize tables
 $tableUpdates = new Table();

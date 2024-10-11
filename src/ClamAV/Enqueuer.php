@@ -4,7 +4,6 @@ namespace Wieczo\WordPress\Plugins\ClamAV;
 
 class Enqueuer {
 	public function __construct() {
-		#wp_die(plugins_url( 'assets/js/jquery.tablesorter.min.js', \WIECZO_CLAMAV_PLUGIN_DIR ));
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue' ] );
 
 		add_action( 'admin_footer', [ $this, 'addTableSortingJS' ] );
