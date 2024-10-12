@@ -204,7 +204,8 @@ class Settings {
 		}
 		// Check if a file was uploaded
 		if ( isset( $_FILES['clamav_file'] ) && isset( $_FILES['clamav_file']['size'] ) && $_FILES['clamav_file']['size'] > 0 ) {
-			$uploaded_file = wp_unslash( $_FILES['clamav_file'] );
+			// phpcs:ignore Can't escape $_FILES. wp_handle_upload takes care of it.
+			$uploaded_file = $_FILES['clamav_file'];
 
 			// Validate file upload status
 			if ( isset( $_FILES['clamav_file']['error'] ) && $_FILES['clamav_file']['error'] !== UPLOAD_ERR_OK ) {
@@ -259,7 +260,7 @@ class Settings {
 		$paged = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
 
 		// Get the filter value from the URL parameters
-		$errorTypeFilter = isset( $_GET['error_type'] ) ? sanitize_text_field( $_GET['error_type'] ) : '';
+		$errorTypeFilter = isset( $_GET['error_type'] ) ? sanitize_text_field( wp_unslash( $_GET['error_type'] ) ) : '';
 
 		// Calculate offset for pagination
 		$offset = ( $paged - 1 ) * $entriesPerPage;
@@ -271,6 +272,7 @@ class Settings {
 		}
 
 		// Total count of entries (filtered if necessary)
+		// phpcs:ignore The WHERE clause is escaped and the tableName can't be escaped
 		$totalItems = $wpdb->get_var( "SELECT COUNT(*) FROM {$tableName} {$whereClause}" );
 
 		// Fetch the results based on pagination and filter
@@ -286,9 +288,18 @@ class Settings {
 		echo '<label for="error_type_filter">' . esc_html( __( 'Fehlertyp filtern:', 'wieczos-virus-scanner' ) ) . '</label>';
 		echo '<select id="error_type_filter" name="error_type">';
 		echo '<option value="">' . esc_html( __( 'Alle Fehlertypen', 'wieczos-virus-scanner' ) ) . '</option>';
-        foreach ( [UploadError::VIRUS_FOUND, UploadError::CANNOT_READ, UploadError::FILE_NOT_FOUND, UploadError::CONNECTION_REFUSED] as $uploadError ) {
-	        echo '<option value="' . esc_attr( $uploadError->name ) . '" ' . selected( $_GET['error_type'], $uploadError->name, false ) . '>' . esc_html( $uploadError->message('Dateiname') ) . '</option>';
-        }
+		foreach (
+			[
+				UploadError::VIRUS_FOUND,
+				UploadError::CANNOT_READ,
+				UploadError::FILE_NOT_FOUND,
+				UploadError::CONNECTION_REFUSED
+			] as $uploadError
+		) {
+			echo '<option value="' . esc_attr( $uploadError->name ) . '" ' .
+                 selected( esc_attr ( sanitize_text_field( wp_unslash( $_GET['error_type'] ) ), $uploadError->name, false ) ) .
+                 '>' . esc_html( $uploadError->message( 'Dateiname' ) ) . '</option>';
+		}
 
 		// Add additional options here if needed
 		echo '</select>';
@@ -345,10 +356,10 @@ class Settings {
 
 		// Show pagination links
 		if ( $total_pages > 1 ) {
-			$nonce = wp_create_nonce( 'paginate_nonce_action' );
+			$nonce    = wp_create_nonce( 'paginate_nonce_action' );
 			$add_args = [
-				'page'      => 'wieczos-virus-scanner-logs', // Ensure the correct page is used
-				'_wpnonce'  => $nonce,
+				'page'     => 'wieczos-virus-scanner-logs', // Ensure the correct page is used
+				'_wpnonce' => $nonce,
 			];
 
 			// Add the error_type filter to pagination if it's set
@@ -356,6 +367,7 @@ class Settings {
 				$add_args['error_type'] = $errorTypeFilter;
 			}
 
+			// phpcs:ignore
 			echo paginate_links( [
 				'base'      => add_query_arg( 'paged', '%#%' ),
 				'format'    => '?paged=%#%',
@@ -427,7 +439,7 @@ class Settings {
 
 		// Pick the offset from the request (how many files have been handled)
 		$offset        = isset( $_POST['offset'] ) ? intval( $_POST['offset'] ) : 0;
-		$infectedFiles = $_POST['infectedFiles'] ? array_map( 'sanitize_text_field', wp_unslash( $_POST['infectedFiles'] ) ) : [];
+		$infectedFiles = isset($_POST['infectedFiles']) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['infectedFiles'] ) ) : [];
 		$scanner       = new Scanner();
 		$wordpressRoot = \ABSPATH;
 		$files         = $scanner->collectAllFiles( $wordpressRoot );
