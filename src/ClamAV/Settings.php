@@ -261,14 +261,18 @@ class Settings {
 
 		// Get the filter value from the URL parameters
 		$errorTypeFilter = isset( $_GET['error_type'] ) ? sanitize_text_field( wp_unslash( $_GET['error_type'] ) ) : '';
+		$sourceFilter    = isset( $_GET['source'] ) ? sanitize_text_field( wp_unslash( $_GET['source'] ) ) : '';
 
 		// Calculate offset for pagination
 		$offset = ( $paged - 1 ) * $entriesPerPage;
 
 		// Create the WHERE clause if filtering by error_type
-		$whereClause = '';
+		$whereClause = 'WHERE 1=1'; // Start with a neutral condition to easily append filters
 		if ( ! empty( $errorTypeFilter ) ) {
-			$whereClause = $wpdb->prepare( "WHERE error_type = %s", $errorTypeFilter );
+			$whereClause .= $wpdb->prepare( " AND error_type = %s", $errorTypeFilter );
+		}
+		if ( ! empty( $sourceFilter ) ) {
+			$whereClause .= $wpdb->prepare( " AND source = %s", $sourceFilter );
 		}
 
 		// Total count of entries (filtered if necessary)
@@ -282,11 +286,18 @@ class Settings {
 		) );
 
 		// Display the filter form
-		echo '<form method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '">';
+		// Display the filter form
+		echo '<form method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '" class="form-wrap">';
+		echo '<div class="tablenav top">';
+		echo '<div class="alignleft actions">';
+
+		// Hidden fields for pagination and page identification
 		echo '<input type="hidden" name="page" value="wieczos-virus-scanner-logs" />';
 		echo '<input type="hidden" name="paged" value="1" />'; // Ensure it resets to page 1 on filter
-		echo '<label for="error_type_filter">' . esc_html( __( 'Fehlertyp filtern:', 'wieczos-virus-scanner' ) ) . '</label>';
-		echo '<select id="error_type_filter" name="error_type">';
+
+		// Error type filter dropdown
+		echo '<label for="error_type_filter" class="screen-reader-text">' . esc_html( __( 'Fehlertyp filtern:', 'wieczos-virus-scanner' ) ) . '</label>';
+		echo '<select id="error_type_filter" name="error_type" class="ewc-filter-select">';
 		echo '<option value="">' . esc_html( __( 'Alle Fehlertypen', 'wieczos-virus-scanner' ) ) . '</option>';
 		foreach (
 			[
@@ -297,13 +308,32 @@ class Settings {
 			] as $uploadError
 		) {
 			echo '<option value="' . esc_attr( $uploadError->name ) . '" ' .
-                 selected( esc_attr ( sanitize_text_field( wp_unslash( $_GET['error_type'] ) ), $uploadError->name, false ) ) .
-                 '>' . esc_html( $uploadError->message( 'Dateiname' ) ) . '</option>';
+			     selected( esc_attr( sanitize_text_field( wp_unslash( $_GET['error_type'] ) ) ), $uploadError->name, false ) .
+			     '>' . esc_html( $uploadError->message( 'Dateiname' ) ) . '</option>';
 		}
-
-		// Add additional options here if needed
 		echo '</select>';
-		echo '<input type="submit" value="' . esc_html( __( 'Filtern', 'wieczos-virus-scanner' ) ) . '" />';
+
+		// Source filter dropdown
+		echo '<label for="source_filter" class="screen-reader-text">' . esc_html( __( 'Quelle filtern:', 'wieczos-virus-scanner' ) ) . '</label>';
+		echo '<select id="source_filter" name="source" class="ewc-filter-select">';
+		echo '<option value="">' . esc_html( __( 'Alle Quellen', 'wieczos-virus-scanner' ) ) . '</option>';
+		foreach (
+			[
+				ScanType::UPLOAD_SCAN,
+				ScanType::WORDPRESS_SCAN,
+			] as $scanSource
+		) {
+			echo '<option value="' . esc_attr( $scanSource->name ) . '" ' .
+			     selected( esc_attr( sanitize_text_field( wp_unslash( $_GET['source'] ) ) ), $scanSource->name, false ) .
+			     '>' . esc_html( $scanSource->message() ) . '</option>';
+		}
+		echo '</select>';
+
+// Submit button with WordPress styling
+		echo '<input type="submit" value="' . esc_html( __( 'Filtern', 'wieczos-virus-scanner' ) ) . '" class="button action" />';
+
+		echo '</div>'; // .alignleft.actions
+		echo '</div>'; // .tablenav.top
 		echo '</form>';
 
 		// Display the table
@@ -439,7 +469,7 @@ class Settings {
 
 		// Pick the offset from the request (how many files have been handled)
 		$offset        = isset( $_POST['offset'] ) ? intval( $_POST['offset'] ) : 0;
-		$infectedFiles = isset($_POST['infectedFiles']) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['infectedFiles'] ) ) : [];
+		$infectedFiles = isset( $_POST['infectedFiles'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['infectedFiles'] ) ) : [];
 		$scanner       = new Scanner();
 		$wordpressRoot = \ABSPATH;
 		$files         = $scanner->collectAllFiles( $wordpressRoot );
