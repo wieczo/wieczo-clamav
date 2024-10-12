@@ -25,6 +25,7 @@ class LogsTable extends \WP_List_Table {
 			'error_type' => __( 'Fehlertyp', 'wieczos-virus-scanner' ),
 			'source'     => __( 'Scan-Typ', 'wieczos-virus-scanner' ),
 			'created_at' => __( 'Erstellungsdatum', 'wieczos-virus-scanner' ),
+			'actions'    => __( 'Aktionen', 'wieczos-virus-scanner' ),
 		];
 	}
 
@@ -40,7 +41,7 @@ class LogsTable extends \WP_List_Table {
 		return isset( $item->$column_name ) ? esc_html( $item->$column_name ) : '';
 	}
 
-	public function column_cb($item) {
+	public function column_cb( $item ) {
 		return sprintf(
 			'<input type="checkbox" name="bulk-action[]" value="%s" />',
 			$item->id
@@ -55,6 +56,22 @@ class LogsTable extends \WP_List_Table {
 		return ScanType::mapNameToEnum( $item->source )?->message();
 	}
 
+	public function column_actions( $item ) {
+		$delete_nonce = wp_create_nonce( 'delete_log_' . $item->id );
+		$delete_url   = add_query_arg( [
+			'action'        => 'delete',
+			'log'           => $item->id,
+			'_delete_nonce' => $delete_nonce,
+		], admin_url( 'admin.php?page=wieczos-virus-scanner-logs' ) );
+
+		return sprintf(
+			'<a href="%s" onclick="return confirm(\'%s\')">%s</a>',
+			esc_url( $delete_url ),
+			esc_html__( 'Sind Sie sicher, dass Sie diesen Log-Eintrag löschen möchten?', 'wieczos-virus-scanner' ),
+			esc_html__( 'Löschen', 'wieczos-virus-scanner' )
+		);
+	}
+
 	public function get_bulk_actions() {
 		return [
 			'delete' => __( 'Löschen', 'wieczos-virus-scanner' ),
@@ -63,21 +80,37 @@ class LogsTable extends \WP_List_Table {
 
 	public function process_bulk_action() {
 		global $wpdb;
-		$table_name = sanitize_key( $wpdb->prefix . Config::TABLE_LOGS );
+		$tableName = sanitize_key( $wpdb->prefix . Config::TABLE_LOGS );
 
-		// Verify nonce for filter security
-		if ( isset( $_REQUEST['_wpnonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), 'filter_logs_nonce' ) ) {
-			wp_die( esc_html ( __( 'Ungültige Anfrage.', 'wieczos-virus-scanner' ) ) );
+
+		// Process bulk delete action
+		if ( 'delete' === $this->current_action() && ! empty( $_REQUEST['bulk-action'] ) ) {
+			// Verify nonce for filter security
+			if ( isset( $_REQUEST['_wpnonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), 'filter_logs_nonce' ) ) {
+				wp_die( esc_html( __( 'Ungültige Anfrage.', 'wieczos-virus-scanner' ) ) );
+			}
+
+			$ids = array_map( 'intval', $_REQUEST['bulk-action'] );
+			if ( ! empty( $ids ) ) {
+				// Delete items by IDs
+				$ids_placeholder = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+				foreach ( $ids as $id ) {
+					$wpdb->delete( $tableName, [ 'id' => $id ], [ '%d' ] );
+				}
+			}
 		}
 
-		// Check if the current action is 'delete'
-		if ('delete' === $this->current_action() && ! empty($_REQUEST['bulk-action'])) {
-			$ids = array_map('intval', $_REQUEST['bulk-action']);
-			if (!empty($ids)) {
-				// Delete items by IDs
-				$ids_placeholder = implode(',', array_fill(0, count($ids), '%d'));
-				$wpdb->query($wpdb->prepare("DELETE FROM {$table_name} WHERE id IN ($ids_placeholder)", $ids));
+		// Process single delete action
+		if ( 'delete' === $this->current_action() && isset( $_GET['log'] ) ) {
+			$logId = intval( $_GET['log'] );
+			$nonce = sanitize_text_field( wp_unslash( $_GET['_delete_nonce'] ) );
+
+			if ( ! wp_verify_nonce( $nonce, 'delete_log_' . $logId ) ) {
+				wp_die( esc_html( __( 'Ungültige Anfrage.', 'wieczos-virus-scanner' ) ) );
 			}
+
+			// Delete the item
+			$wpdb->delete( $tableName, [ 'id' => $logId ], [ '%d' ] );
 		}
 	}
 
@@ -92,7 +125,7 @@ class LogsTable extends \WP_List_Table {
 
 			// Verify nonce for filter security
 			if ( isset( $_REQUEST['_wpnonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), 'filter_logs_nonce' ) ) {
-				wp_die( esc_html ( __( 'Ungültige Anfrage.', 'wieczos-virus-scanner' ) ) );
+				wp_die( esc_html( __( 'Ungültige Anfrage.', 'wieczos-virus-scanner' ) ) );
 			}
 
 			// Hidden fields for pagination and page identification
@@ -154,7 +187,7 @@ class LogsTable extends \WP_List_Table {
 
 		// Verify nonce for filter security
 		if ( isset( $_REQUEST['_wpnonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), 'filter_logs_nonce' ) ) {
-			wp_die( esc_html ( __( 'Ungültige Anfrage.', 'wieczos-virus-scanner' ) ) );
+			wp_die( esc_html( __( 'Ungültige Anfrage.', 'wieczos-virus-scanner' ) ) );
 		}
 
 		// Apply filters
@@ -172,8 +205,8 @@ class LogsTable extends \WP_List_Table {
 		}
 
 		// Pick order by from the request
-		$orderby = ! empty( $_REQUEST['orderby'] ) ? sanitize_sql_orderby( wp_unslash ( $_REQUEST['orderby'] ) ) : 'created_at';
-		$order   = ! empty( $_REQUEST['order'] ) && strtolower( sanitize_text_field ( wp_unslash ( $_REQUEST['order'] ) ) )  === 'asc' ? 'ASC' : 'DESC';
+		$orderby = ! empty( $_REQUEST['orderby'] ) ? sanitize_sql_orderby( wp_unslash( $_REQUEST['orderby'] ) ) : 'created_at';
+		$order   = ! empty( $_REQUEST['order'] ) && strtolower( sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) ) === 'asc' ? 'ASC' : 'DESC';
 
 		// Set the items for the table
 		$sql         = "SELECT * FROM {$table_name} {$where} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d";
