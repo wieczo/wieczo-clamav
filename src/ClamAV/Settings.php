@@ -3,7 +3,7 @@
 namespace Wieczo\WordPress\Plugins\ClamAV;
 
 class Settings {
-	private int $batchSize = 1_000;
+	private int $batchSize = 200;
 
 	public function __construct() {
 		add_action( 'admin_menu', [ $this, 'addAdminMenu' ] );
