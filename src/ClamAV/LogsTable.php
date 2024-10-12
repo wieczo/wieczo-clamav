@@ -40,7 +40,7 @@ class LogsTable extends \WP_List_Table {
 		return isset( $item->$column_name ) ? esc_html( $item->$column_name ) : '';
 	}
 
-	public function column_cb( $item ) {
+	public function column_cb($item) {
 		return sprintf(
 			'<input type="checkbox" name="bulk-action[]" value="%s" />',
 			$item->id
@@ -53,6 +53,32 @@ class LogsTable extends \WP_List_Table {
 
 	public function column_source( $item ) {
 		return ScanType::mapNameToEnum( $item->source )?->message();
+	}
+
+	public function get_bulk_actions() {
+		return [
+			'delete' => __( 'Löschen', 'wieczos-virus-scanner' ),
+		];
+	}
+
+	public function process_bulk_action() {
+		global $wpdb;
+		$table_name = sanitize_key( $wpdb->prefix . Config::TABLE_LOGS );
+
+		// Verify nonce for filter security
+		if ( isset( $_REQUEST['_wpnonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), 'filter_logs_nonce' ) ) {
+			wp_die( esc_html ( __( 'Ungültige Anfrage.', 'wieczos-virus-scanner' ) ) );
+		}
+
+		// Check if the current action is 'delete'
+		if ('delete' === $this->current_action() && ! empty($_REQUEST['bulk-action'])) {
+			$ids = array_map('intval', $_REQUEST['bulk-action']);
+			if (!empty($ids)) {
+				// Delete items by IDs
+				$ids_placeholder = implode(',', array_fill(0, count($ids), '%d'));
+				$wpdb->query($wpdb->prepare("DELETE FROM {$table_name} WHERE id IN ($ids_placeholder)", $ids));
+			}
+		}
 	}
 
 	// Methode zum Hinzufügen von Filter-UI-Elementen
@@ -118,6 +144,9 @@ class LogsTable extends \WP_List_Table {
 	public function prepare_items() {
 		global $wpdb;
 		$table_name = sanitize_key( $wpdb->prefix . Config::TABLE_LOGS );
+
+		// Process bulk actions before fetching items
+		$this->process_bulk_action();
 
 		$per_page     = 10;
 		$current_page = $this->get_pagenum();
