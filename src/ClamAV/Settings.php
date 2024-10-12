@@ -340,15 +340,15 @@ class Settings {
 		if ( ! empty( $results ) ) {
 			echo '<table class="wp-list-table widefat fixed striped tablesorter">';
 			echo '<thead>
-            <tr>
-                <th>' . esc_html( __( 'ID', 'wieczos-virus-scanner' ) ) . '</th>
-                <th>' . esc_html( __( 'Benutzername', 'wieczos-virus-scanner' ) ) . '</th>
-                <th>' . esc_html( __( 'Dateiname', 'wieczos-virus-scanner' ) ) . '</th>
-                <th>' . esc_html( __( 'Fehlertyp', 'wieczos-virus-scanner' ) ) . '</th>
-                <th>' . esc_html( __( 'Scan-Typ', 'wieczos-virus-scanner' ) ) . '</th>
-                <th>' . esc_html( __( 'Erstellungsdatum', 'wieczos-virus-scanner' ) ) . '</th>
-            </tr>
-          </thead>';
+                    <tr>
+                        <th scope="col" class="manage-column column-id">' . esc_html( __( 'ID', 'wieczos-virus-scanner' ) ) . '</th>
+                        <th scope="col" class="manage-column column-username">' . esc_html( __( 'Benutzername', 'wieczos-virus-scanner' ) ) . '</th>
+                        <th scope="col" class="manage-column column-filename">' . esc_html( __( 'Dateiname', 'wieczos-virus-scanner' ) ) . '</th>
+                        <th scope="col" class="manage-column column-error-type">' . esc_html( __( 'Fehlertyp', 'wieczos-virus-scanner' ) ) . '</th>
+                        <th scope="col" class="manage-column column-scan-type">' . esc_html( __( 'Scan-Typ', 'wieczos-virus-scanner' ) ) . '</th>
+                        <th scope="col" class="manage-column column-created-at">' . esc_html( __( 'Erstellungsdatum', 'wieczos-virus-scanner' ) ) . '</th>
+                    </tr>
+                  </thead>';
 			echo '<tbody>';
 
 			foreach ( $results as $row ) {
@@ -364,14 +364,14 @@ class Settings {
 					$userNameWithLink = esc_html( $row->user_name );
 				}
 
-				echo '<tr>';
-				echo '<td>' . esc_html( $row->id ) . '</td>';
-				// phpcs:ignore
-				echo '<td>' . $userNameWithLink . '</td>';
-				echo '<td>' . esc_html( $row->filename ) . '</td>';
-				echo '<td>' . esc_html( UploadError::mapNameToEnum( $row->error_type )?->message( $row->filename ) ) . '</td>';
-				echo '<td>' . esc_html( ScanType::mapNameToEnum( $row->source )?->message() ) . '</td>';
-				echo '<td>' . esc_html( date_i18n( get_option( 'date_format' ), strtotime( $row->created_at ) ) ) . '</td>';
+				echo '<tr class="alternate">';
+				echo '<td class="column-id">' . esc_html( $row->id ) . '</td>';
+                // phpcs:ignore
+				echo '<td class="column-username">' . $userNameWithLink . '</td>';
+				echo '<td class="column-filename">' . esc_html( $row->filename ) . '</td>';
+				echo '<td class="column-error-type">' . esc_html( UploadError::mapNameToEnum( $row->error_type )?->message( $row->filename ) ) . '</td>';
+				echo '<td class="column-scan-type">' . esc_html( ScanType::mapNameToEnum( $row->source )?->message() ) . '</td>';
+				echo '<td class="column-created-at">' . esc_html( date_i18n( get_option( 'date_format' ), strtotime( $row->created_at ) ) ) . '</td>';
 				echo '</tr>';
 			}
 
@@ -396,7 +396,8 @@ class Settings {
 			if ( ! empty( $errorTypeFilter ) ) {
 				$add_args['error_type'] = $errorTypeFilter;
 			}
-
+			echo '<div class="tablenav bottom">'; // Wrapper for pagination with WordPress styling
+			echo '<div class="tablenav-pages">';  // Additional wrapper for the pagination links
 			// phpcs:ignore
 			echo paginate_links( [
 				'base'      => add_query_arg( 'paged', '%#%' ),
@@ -407,6 +408,9 @@ class Settings {
 				'next_text' => esc_html( __( 'Weiter', 'wieczos-virus-scanner' ) ) . ' »',
 				'add_args'  => $add_args,
 			] );
+
+			echo '</div>'; // .tablenav-pages
+			echo '</div>'; // .tablenav.bottom
 		}
 	}
 
