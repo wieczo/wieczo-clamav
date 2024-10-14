@@ -75,22 +75,25 @@ class Settings {
 	public function initSettings() {
 		// Define the settings
 		register_setting( 'wieczo_clamav_options_group', 'clamav_host', [
-			'type'        => 'string',
-			'label'       => __( 'Hostname von ClamAV', 'wieczos-virus-scanner' ),
-			'description' => __( 'Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn es lokal läuft, z.B. localhost', 'wieczos-virus-scanner' ),
-			'default'     => Config::DEFAULT_HOST,
+			'type'              => 'string',
+			'label'             => __( 'Hostname von ClamAV', 'wieczos-virus-scanner' ),
+			'description'       => __( 'Wenn es sich um einen separaten Docker Container handelt, z.B. clamav. Wenn es lokal läuft, z.B. localhost', 'wieczos-virus-scanner' ),
+			'default'           => Config::DEFAULT_HOST,
+			'sanitize_callback' => 'sanitize_text_field',
 		] );
 		register_setting( 'wieczo_clamav_options_group', 'clamav_port', [
-			'type'        => 'integer',
-			'label'       => __( 'Port von ClamAV', 'wieczos-virus-scanner' ),
-			'description' => __( 'Der Standardwert ist 3310', 'wieczos-virus-scanner' ),
-			'default'     => Config::DEFAULT_PORT,
+			'type'              => 'integer',
+			'label'             => __( 'Port von ClamAV', 'wieczos-virus-scanner' ),
+			'description'       => __( 'Der Standardwert ist 3310', 'wieczos-virus-scanner' ),
+			'default'           => Config::DEFAULT_PORT,
+			'sanitize_callback' => 'intval',
 		] );
 		register_setting( 'wieczo_clamav_options_group', 'clamav_timeout', [
-			'type'        => 'integer',
-			'label'       => __( 'Nach wie viel Sekunden soll die Verbindung abgebrochen werden', 'wieczos-virus-scanner' ),
-			'description' => __( 'Der Standartwert ist 30 Sekunden', 'wieczos-virus-scanner' ),
-			'default'     => Config::DEFAULT_TIMEOUT,
+			'type'              => 'integer',
+			'label'             => __( 'Nach wie viel Sekunden soll die Verbindung abgebrochen werden', 'wieczos-virus-scanner' ),
+			'description'       => __( 'Der Standartwert ist 30 Sekunden', 'wieczos-virus-scanner' ),
+			'default'           => Config::DEFAULT_TIMEOUT,
+			'sanitize_callback' => 'intval',
 		] );
 
 		add_settings_section(

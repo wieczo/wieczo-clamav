@@ -18,7 +18,7 @@ class Enqueuer {
 	}
 
 	function addTableSortingJS() {
-		wp_add_inline_script("
+		wp_add_inline_script('init-tablesorter', "
 		<script type='text/javascript'>
             jQuery(document).ready(function ($) {
                 $('.tablesorter').tablesorter();
