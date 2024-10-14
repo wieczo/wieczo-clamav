@@ -8,7 +8,8 @@ class Table {
 
 		$tableName      = $wpdb->prefix . Config::TABLE_LOGS;
 		$charsetCollate = $wpdb->get_charset_collate();
-		$ddl            = <<<SQL
+    
+		$ddl            = "
 CREATE TABLE $tableName (
     id mediumint(9) NOT NULL AUTO_INCREMENT,
     user_name VARCHAR(255) NOT NULL,
@@ -17,8 +18,7 @@ CREATE TABLE $tableName (
 	source ENUM('WORDPRESS_SCAN', 'UPLOAD_SCAN') NOT NULL DEFAULT 'UPLOAD_SCAN',
     created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY  (id)
-) $charsetCollate;
-SQL;
+) $charsetCollate;"
 
 		// Required WordPress methods to create the table
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -30,11 +30,20 @@ SQL;
 	public function dropTable() {
 		global $wpdb;
 
-		// Tabellenname definieren
 		$tableName = $wpdb->prefix . Config::TABLE_LOGS;
 
-		// Tabelle löschen
+		// Delete table
 		// phpcs:ignore
 		$wpdb->query( $wpdb->prepare( "DROP TABLE IF EXISTS %s", $tableName ) );
+
+		// Delete options
+		$options = [
+			'host',
+			'port',
+			'timeout'
+		];
+		foreach ( $options as $option ) {
+			delete_option( 'clamav_' . $option );
+		}
 	}
 }
