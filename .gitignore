@@ -2,7 +2,7 @@
 vendor/
 
 # Composer lock file (optional, wenn du das genaue Abhängigkeits-Setup nicht versionieren möchtest)
-# /composer.lock
+/composer.lock
 
 # Cache und temporäre Dateien
 composer.phar
