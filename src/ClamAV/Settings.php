@@ -2,6 +2,9 @@
 
 namespace Wieczo\WordPress\Plugins\ClamAV;
 
+use const ABSPATH;
+use const WIECZOS_VIRUS_SCANNER_PLUGIN_DIR;
+
 class Settings {
 	private int $batchSize = 200;
 
@@ -22,7 +25,7 @@ class Settings {
 	 *
 	 * @return void
 	 */
-	public function addAdminMenu() {
+	public function addAdminMenu(): void {
 		// Adds settings page
 		add_menu_page(
 			__( 'Scanner Einstellungen', 'wieczos-virus-scanner' ),
@@ -65,7 +68,7 @@ class Settings {
 	 * Displays the settings page for configuration the connection to ClamAV
 	 * @return void
 	 */
-	public function showSettingsPage() {
+	public function showSettingsPage(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html( __( 'Du hast keine Berechtigung für diesen Vorgang.', 'wieczos-virus-scanner' ) ) );
 		}
@@ -89,7 +92,7 @@ class Settings {
 	 *
 	 * @return void
 	 */
-	public function initSettings() {
+	public function initSettings(): void {
 		// Define the settings
 		register_setting( 'wieczo_clamav_options_group', 'clamav_host', [
 			'type'              => 'string',
@@ -143,11 +146,11 @@ class Settings {
 	}
 
 
-	public function settingsCB() {
+	public function settingsCB(): void {
 		echo esc_html( __( 'Hier findest du die ClamAV Verbindungsoptionen', 'wieczos-virus-scanner' ) );
 	}
 
-	public function renderSettingHost() {
+	public function renderSettingHost(): void {
 		$host = esc_attr( get_option( 'clamav_host' ) );
 		?>
         <input type="text" name="clamav_host" value="<?php echo esc_attr( $host ); ?>"/>
@@ -155,7 +158,7 @@ class Settings {
 		<?php
 	}
 
-	public function renderSettingPort() {
+	public function renderSettingPort(): void {
 		$port = (int) get_option( 'clamav_port' );
 		?>
         <input type="text" name="clamav_port" value="<?php echo esc_attr( $port ); ?>"/>
@@ -163,7 +166,7 @@ class Settings {
 		<?php
 	}
 
-	public function renderSettingTimeout() {
+	public function renderSettingTimeout(): void {
 		$timeout = (int) get_option( 'clamav_timeout' );
 		?>
         <input type="text" name="clamav_timeout" value="<?php echo esc_attr( $timeout ); ?>"/>
@@ -171,7 +174,7 @@ class Settings {
 		<?php
 	}
 
-	public function showTestPage() {
+	public function showTestPage(): void {
 		$scanResult = isset( $_GET['scan_result'] ) ? urldecode( sanitize_text_field( wp_unslash( $_GET['scan_result'] ) ) ) : null;
 		// Check only the nonce when it is set, no need to test it on a normal page call.
 		if ( isset( $_GET['_wpnonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'file_check_nonce' ) ) {
@@ -197,7 +200,7 @@ class Settings {
 		<?php
 	}
 
-	public function scanUploadedFile() {
+	public function scanUploadedFile(): void {
 		// Check policies.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html( __( 'Du hast keine Berechtigung für diesen Vorgang.', 'wieczos-virus-scanner' ) ) );
@@ -206,7 +209,7 @@ class Settings {
 			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token', 'wieczos-virus-scanner' ) ) );
 		}
 		// Check if a file was uploaded
-		if ( isset( $_FILES['clamav_file'] ) && isset( $_FILES['clamav_file']['size'] ) && $_FILES['clamav_file']['size'] > 0 ) {
+		if ( isset( $_FILES['clamav_file']['size'] ) && $_FILES['clamav_file']['size'] > 0 ) {
 			// phpcs:ignore Can't escape $_FILES. wp_handle_upload takes care of it.
 			$uploaded_file = $_FILES['clamav_file'];
 
@@ -246,7 +249,7 @@ class Settings {
 		}
 	}
 
-	public function showLogsPage() {
+	public function showLogsPage(): void {
 		$table = new LogsTable();
 		echo '<div class="wrap">';
 		echo '<h1 class="wp-heading-inline">' . esc_html( __( 'Logs', 'wieczos-virus-scanner' ) ) . '</h1>';
@@ -260,8 +263,8 @@ class Settings {
 		echo '</div>';
 	}
 
-	public function showFullScanPage() {
-		$files = Scanner::collectAllFiles( \ABSPATH );
+	public function showFullScanPage(): void {
+		$files = Scanner::collectAllFiles( ABSPATH );
 		?>
         <div class="wrap">
             <h1><?php echo esc_html( __( 'Voller WordPress Scan', 'wieczos-virus-scanner' ) ) ?></h1>
@@ -271,7 +274,7 @@ class Settings {
             <div id="progress-container"
                  style="width: 100%; background-color: #f3f3f3; border: 1px solid #ddd; padding: 5px;">
                 <div id="progress-bar"
-                     style="width: 0%; height: 30px; background-color: #4caf50; text-align: center; line-height: 30px; color: white;">
+                     style="width: 0; height: 30px; background-color: #4caf50; text-align: center; line-height: 30px; color: white;">
                     0%
                 </div>
             </div>
@@ -287,17 +290,17 @@ class Settings {
 		<?php
 	}
 
-	public function enqueueScripts( $hook ) {
+	public function enqueueScripts( $hook ): void {
 		// Woher kommt  virus-scanner_page_full-scan statt wieczos-virus-scanner_page_full-scan
 		if ( $hook !== 'virus-scanner_page_full-scan' ) {
 			return;
 		}
 
 		// JavaScript for AJAX Batching
-		wp_enqueue_script( 'full-scan-script', plugins_url( 'assets/js/batch-scan.js', \WIECZOS_VIRUS_SCANNER_PLUGIN_DIR ), [ 'jquery' ], '0.1', true );
+		wp_enqueue_script( 'full-scan-script', plugins_url( 'assets/js/batch-scan.js', WIECZOS_VIRUS_SCANNER_PLUGIN_DIR ), [ 'jquery' ], '0.1', true );
 
 		// Localized data for the JS
-		$files = Scanner::collectAllFiles( \ABSPATH );
+		$files = Scanner::collectAllFiles( ABSPATH );
 		wp_localize_script( 'full-scan-script', 'batchScanData', [
 			'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
 			'nonce'            => wp_create_nonce( 'wieczos-virus-scanner-batch_scan_nonce' ),
@@ -314,14 +317,14 @@ class Settings {
 		] );
 	}
 
-	public function handleAjaxBatchScan() {
+	public function handleAjaxBatchScan(): void {
 		check_ajax_referer( 'wieczos-virus-scanner-batch_scan_nonce', 'security' );
 
 		// Pick the offset from the request (how many files have been handled)
 		$offset        = isset( $_POST['offset'] ) ? intval( $_POST['offset'] ) : 0;
 		$infectedFiles = isset( $_POST['infectedFiles'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['infectedFiles'] ) ) : [];
 		$scanner       = new Scanner();
-		$wordpressRoot = \ABSPATH;
+		$wordpressRoot = ABSPATH;
 		$files         = $scanner->collectAllFiles( $wordpressRoot );
 		$totalFiles    = count( $files );
 
@@ -330,7 +333,7 @@ class Settings {
 
 			if ( $scanner->scanFile( $file, ScanType::WORDPRESS_SCAN, $error ) === true ) {
 				$infectedFiles[] = $file;
-			};
+			}
 		}
 		// Work on the next batch
 		$processedFiles = min( $offset + $this->batchSize, $totalFiles );

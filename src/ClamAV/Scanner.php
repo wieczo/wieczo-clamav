@@ -18,8 +18,6 @@ class Scanner {
 	 * @return array Returns the input $file array with the key 'error' when a virus was found.
 	 */
 	public function scanUpload( array $file ): array {
-		global $wp_filesystem;
-
 		// Initialisiere WP_Filesystem
 		if ( ! function_exists( 'WP_Filesystem' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -37,12 +35,12 @@ class Scanner {
 	}
 
 	/**
-	 * @param $filePath      Path to the file to scan
+	 * @param string $filePath Path to the file to scan
 	 * @param string|null $errorMessage Error Message which occurred when trying to open a socket, read the file or scan it for a virus
 	 *
 	 * @return bool|null Returns true if a virus was found or if an error occurred.
 	 */
-	public function scanFile( $filePath, ScanType $scanType, ?string &$errorMessage = null ): ?bool {
+	public function scanFile( string $filePath, ScanType $scanType, ?string &$errorMessage = null ): ?bool {
 		global $wp_filesystem;
 
 		// Initialisiere WP_Filesystem
@@ -131,7 +129,9 @@ class Scanner {
 	/**
 	 * Logs the file as having a virus in the database.
 	 *
-	 * @param $filename File name of the scanned file which contains a virus
+	 * @param string $filename File name of the scanned file which contains a virus
+	 * @param UploadError $error
+	 * @param ScanType $scanType
 	 *
 	 * @return void
 	 */
@@ -170,7 +170,7 @@ class Scanner {
 	 *
 	 * @return array         The files found in the given folder
 	 */
-	public static function collectAllFiles( string $folder, array &$results = array() ) {
+	public static function collectAllFiles( string $folder, array &$results = array() ): array {
 		$files = scandir( $folder );
 
 		foreach ( $files as $value ) {

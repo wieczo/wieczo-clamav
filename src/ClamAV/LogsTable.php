@@ -2,11 +2,13 @@
 
 namespace Wieczo\WordPress\Plugins\ClamAV;
 
+use WP_List_Table;
+
 if ( ! class_exists( 'WP_List_Table' ) ) {
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }
 
-class LogsTable extends \WP_List_Table {
+class LogsTable extends WP_List_Table {
 
 	public function __construct() {
 		parent::__construct( [
@@ -16,7 +18,7 @@ class LogsTable extends \WP_List_Table {
 		] );
 	}
 
-	public function get_columns() {
+	public function get_columns(): array {
 		return [
 			'cb'         => '<input type="checkbox" />', // Checkbox für Massenaktionen
 			'id'         => __( 'ID', 'wieczos-virus-scanner' ),
@@ -29,7 +31,7 @@ class LogsTable extends \WP_List_Table {
 		];
 	}
 
-	public function get_sortable_columns() {
+	public function get_sortable_columns(): array {
 		return [
 			'id'         => [ 'id', false ],
 			'user_name'  => [ 'user_name', false ],
@@ -48,15 +50,15 @@ class LogsTable extends \WP_List_Table {
 		);
 	}
 
-	public function column_error_type( $item ) {
+	public function column_error_type( $item ): ?string {
 		return UploadError::mapNameToEnum( $item->error_type )?->message( $item->filename );
 	}
 
-	public function column_source( $item ) {
+	public function column_source( $item ): ?string {
 		return ScanType::mapNameToEnum( $item->source )?->message();
 	}
 
-	public function column_actions( $item ) {
+	public function column_actions( $item ): string {
 		$delete_nonce = wp_create_nonce( 'delete_log_' . $item->id );
 		$delete_url   = add_query_arg( [
 			'action'        => 'delete',
@@ -78,7 +80,7 @@ class LogsTable extends \WP_List_Table {
 		];
 	}
 
-	public function process_bulk_action() {
+	public function process_bulk_action(): void {
 		global $wpdb;
 		$tableName = sanitize_key( $wpdb->prefix . Config::TABLE_LOGS );
 
@@ -93,7 +95,6 @@ class LogsTable extends \WP_List_Table {
 			$ids = array_map( 'intval', $_REQUEST['bulk-action'] );
 			if ( ! empty( $ids ) ) {
 				// Delete items by IDs
-				$ids_placeholder = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 				foreach ( $ids as $id ) {
 					$wpdb->delete( $tableName, [ 'id' => $id ], [ '%d' ] );
 				}
@@ -174,7 +175,7 @@ class LogsTable extends \WP_List_Table {
 		}
 	}
 
-	public function prepare_items() {
+	public function prepare_items(): void {
 		global $wpdb;
 		$table_name = sanitize_key( $wpdb->prefix . Config::TABLE_LOGS );
 

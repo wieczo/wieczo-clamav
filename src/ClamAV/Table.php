@@ -3,7 +3,7 @@
 namespace Wieczo\WordPress\Plugins\ClamAV;
 
 class Table {
-	public function defineTable() {
+	public function defineTable(): void {
 		global $wpdb;
 
 		$tableName      = $wpdb->prefix . Config::TABLE_LOGS;
@@ -18,7 +18,7 @@ CREATE TABLE $tableName (
 	source ENUM('WORDPRESS_SCAN', 'UPLOAD_SCAN') NOT NULL DEFAULT 'UPLOAD_SCAN',
     created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY  (id)
-) $charsetCollate;"
+) $charsetCollate;";
 
 		// Required WordPress methods to create the table
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -27,7 +27,7 @@ CREATE TABLE $tableName (
 		dbDelta( $ddl );
 	}
 
-	public function dropTable() {
+	public function dropTable(): void {
 		global $wpdb;
 
 		$tableName = $wpdb->prefix . Config::TABLE_LOGS;
