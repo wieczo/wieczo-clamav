@@ -18,10 +18,12 @@ class Enqueuer {
 	}
 
 	function addTableSortingJS() {
-		wp_add_inline_script( 'tablesorter-init', '<script type="text/javascript">
+		wp_add_inline_script('init-tablesorter', "
+		<script type='text/javascript'>
             jQuery(document).ready(function ($) {
-                $(".tablesorter").tablesorter();
+                $('.tablesorter').tablesorter();
             });
-        </script>', 'after' );
+        </script>
+        ");
 	}
 }
