@@ -1,1 +1,25 @@
+# Vendor directory (enthält alle von Composer installierten Abhängigkeiten)
+vendor/
+
+# Composer lock file (optional, wenn du das genaue Abhängigkeits-Setup nicht versionieren möchtest)
+# /composer.lock
+
+# Cache und temporäre Dateien
+composer.phar
+.cache/
+.phpunit.result.cache
+
+# IDE-spezifische Dateien (z. B. für PHPStorm)
 .idea/
+*.iml
+
+# Log-Dateien
+*.log
+
+# Betriebssystemspezifische Dateien
+.DS_Store
+Thumbs.db
+
+# Umgebungsvariablen (z.B. sensible Daten wie Zugangsdaten)
+.env
+.env.*.local
