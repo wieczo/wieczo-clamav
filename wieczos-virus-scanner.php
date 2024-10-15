@@ -42,4 +42,13 @@ function wieczo_clamav_load_textdomain() {
 	load_plugin_textdomain( 'wieczos-virus-scanner', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 }
 
+add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'wieczo_clamav_settings_link' );
+function wieczo_clamav_settings_link( $links ) {
+	$settings_link = '<a href="' . admin_url( 'options-general.php?page=wieczos-virus-scanner' ) . '">' . __( 'Einstellungen', 'wieczos-virus-scanner' ) . '</a>';
+	array_unshift( $links, $settings_link );
+
+	return $links;
+}
+
+
 new Enqueuer();
