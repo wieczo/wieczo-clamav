@@ -105,6 +105,7 @@ Once the plugin is activated, it automatically scans all uploads for viruses.
   * Adds table to log virus findings
 
 * 1.2.0
-  * Allows to scan the whole WordPress installation for viruses
-  * Logs all errors
-  * Enables to filter the logs by error type
+  * Adds full scan of all WordPress files
+  * Extends the table to log all errors which happen during a scan
+  * Replaces the old standard HTML table with a WP_List_Table to support sorting, multi-actions and more
+  * Enables to filter by log type and scan method

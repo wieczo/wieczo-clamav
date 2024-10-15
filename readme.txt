@@ -1,10 +1,10 @@
 === Wieczo's Virus Scanner ===
-Contributors: Thomas Wieczorek, Simon Neutert
+Contributors: wieczo, Simon Neutert
 Tags: antivirus, malware, clamav, security, virus
 Requires at least: 6.0
-Tested up to: 6.7
+Tested up to: 6.6.2
 Requires PHP: 8.2
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,3 +103,9 @@ Initial release.
 
 * Adds uninstall.php
 * Adds table to log virus findings
+
+= 1.2.0 =
+
+* Adds full scan of all WordPress files
+* Extends the table to log all errors which happen during a scan
+* Replaces the old standard HTML table with a WP_List_Table to support sorting, multi-actions and more
