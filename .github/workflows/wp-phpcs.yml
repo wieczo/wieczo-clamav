@@ -26,7 +26,9 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          path: "/wieczo-virus-scanner"
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -62,20 +64,10 @@ jobs:
 
       - name: Install Plugin
         run: |
-          wp plugin activate --path=./wordpress ./ # Aktiviert das Plugin aus dem Repository
+          wp plugin activate --path=./wordpress /wieczos-virus-scanner # Aktiviert das Plugin aus dem Repository
 
       - name: Run PHP CodeSniffer
         run: |
-          ./vendor/bin/phpcs --standard=WordPress ./your-plugin.php
-
-      - name: Run PHPUnit Tests
-        env:
-          WP_TESTS_DIR: ./wordpress/wp-content/plugins/your-plugin/tests/
-        run: |
-          # ./vendor/bin/phpunit --configuration phpunit.xml
-
-      - name: Run Integration Tests
-        run: |
-          # Beispiel: Verwenden von WP-CLI zur Überprüfung der Plugin-Funktionalität
-          #wp plugin status --path=./wordpress
-          # Füge hier weitere Integrationstests hinzu
+          ./vendor/bin/phpcs --config-set installed_paths ./vendor/wp-coding-standards/wpcs
+          ./vendor/bin/phpcs -i
+          ./vendor/bin/phpcs --standard=WordPress /wieczos-virus-scanner
