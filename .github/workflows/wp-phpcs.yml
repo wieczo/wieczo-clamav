@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          path: wieczos-virus-scanner
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -65,8 +67,8 @@ jobs:
           mkdir -p ./wordpress/wp-content/plugins/wieczos-virus-scanner
 
           # Kopiere alle Plugin-Dateien in das Plugins-Verzeichnis
-          cp -r ./* ./wordpress/wp-content/plugins/wieczos-virus-scanner/
-          wp plugin activate --path=./wordpress ./wieczos-virus-scanner.php # Aktiviert das Plugin aus dem Repository
+          cp -r ./wieczos-virus-scanner/* ./wordpress/wp-content/plugins/wieczos-virus-scanner/
+          wp plugin activate --path=./wordpress wieczos-virus-scanner # Aktiviert das Plugin aus dem Repository
 
           if [ -f ./wordpress/wp-content/plugins/wieczos-virus-scanner/wieczos-virus-scanner.php ]; then
             echo "Plugin-Datei gefunden."
