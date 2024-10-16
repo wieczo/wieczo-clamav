@@ -84,4 +84,5 @@ jobs:
       - name: Run PHP CodeSniffer
         run: |
           cd wieczos-virus-scanner
-          ./vendor/bin/phpcs -d memory_limit=1024M --standard=WordPress ./
+          ./vendor/bin/phpcs -d memory_limit=1024M --standard=WordPress ./src
+          ./vendor/bin/phpcs -d memory_limit=1024M --standard=WordPress ./wieczos-virus-scanner.php
