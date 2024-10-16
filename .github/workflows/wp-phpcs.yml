@@ -1,0 +1,82 @@
+name: WordPress Plugin Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: mbstring, mysqli
+          ini-values: |
+            memory_limit=512M
+            upload_max_filesize=100M
+            post_max_size=100M
+          coverage: xdebug
+
+      - name: Install Composer Dependencies
+        run: |
+          if [ -f composer.lock ]; then composer install --prefer-dist --no-progress --no-suggest; else composer install; fi
+
+      - name: Install WP-CLI
+        run: |
+          curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x wp-cli.phar
+          sudo mv wp-cli.phar /usr/local/bin/wp
+
+      - name: Set up WordPress Test Environment
+        env:
+          DB_HOST: 127.0.0.1:3306
+          DB_NAME: wordpress_test
+          DB_USER: root
+          DB_PASS: root
+        run: |
+          wp core download --path=./wordpress --version=latest
+          wp config create --path=./wordpress --dbname=$DB_NAME --dbuser=$DB_USER --dbpass=$DB_PASS --dbhost=$DB_HOST --skip-check
+          wp db create --path=./wordpress
+          wp core install --path=./wordpress --url=localhost --title="Test Site" --admin_user=admin --admin_password=admin --admin_email=admin@example.com
+
+      - name: Install Plugin
+        run: |
+          wp plugin activate --path=./wordpress ./ # Aktiviert das Plugin aus dem Repository
+
+      - name: Run PHP CodeSniffer
+        run: |
+          ./vendor/bin/phpcs --standard=WordPress ./your-plugin.php
+
+      - name: Run PHPUnit Tests
+        env:
+          WP_TESTS_DIR: ./wordpress/wp-content/plugins/your-plugin/tests/
+        run: |
+          # ./vendor/bin/phpunit --configuration phpunit.xml
+
+      - name: Run Integration Tests
+        run: |
+          # Beispiel: Verwenden von WP-CLI zur Überprüfung der Plugin-Funktionalität
+          #wp plugin status --path=./wordpress
+          # Füge hier weitere Integrationstests hinzu
