@@ -62,7 +62,7 @@ jobs:
 
       - name: Install Plugin
         run: |
-          wp plugin activate --path=./wordpress /home/runner/work/wieczo-clamav/wieczo-clamav # Aktiviert das Plugin aus dem Repository
+          wp plugin activate --path=./wordpress ./wieczos-virus-scanner.php # Aktiviert das Plugin aus dem Repository
 
       - name: Run PHP CodeSniffer
         run: |
