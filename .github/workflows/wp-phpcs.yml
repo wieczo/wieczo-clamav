@@ -62,8 +62,22 @@ jobs:
 
       - name: Install Plugin
         run: |
+          mkdir -p ./wordpress/wp-content/plugins/wieczos-virus-scanner
+
+          # Kopiere alle Plugin-Dateien in das Plugins-Verzeichnis
+          cp -r ./* ./wordpress/wp-content/plugins/wieczos-virus-scanner/
           wp plugin activate --path=./wordpress ./wieczos-virus-scanner.php # Aktiviert das Plugin aus dem Repository
 
+          if [ -f ./wordpress/wp-content/plugins/wieczos-virus-scanner/wieczos-virus-scanner.php ]; then
+            echo "Plugin-Datei gefunden."
+          else
+            echo "Plugin-Datei nicht gefunden."
+            exit 1
+          fi
+
+          # Aktiviere das Plugin
+          wp plugin activate wieczos-virus-scanner --path=./wordpress
+          
       - name: Run PHP CodeSniffer
         run: |
           ./vendor/bin/phpcs --config-set installed_paths ./vendor/wp-coding-standards/wpcs
