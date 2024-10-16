@@ -1,0 +1,42 @@
+services:
+
+  wordpress:
+    image: wordpress:latest
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+    volumes:
+      - wordpress:/var/www/html
+      - ./:/var/www/html/wp-content/plugins/wieczos-virus-scanner
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db:/var/lib/mysql
+
+  clamav:
+    image: clamav/clamav:1.4.1
+    restart: always
+    # user: "clamav"
+    # entrypoint: ["/init-unprivileged"]
+    # ports:
+    #   - 3310:3310
+    #   - 7357:7357
+    volumes:
+      - clamdb:/var/lib/clamav
+
+volumes:
+  clamdb:
+  wordpress:
+  db:
