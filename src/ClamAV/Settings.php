@@ -2,11 +2,22 @@
 
 namespace Wieczo\WordPress\Plugins\ClamAV;
 
+use const ABSPATH;
+use const WIECZOS_VIRUS_SCANNER_PLUGIN_DIR;
+
 class Settings {
+	private int $batchSize = 200;
+
 	public function __construct() {
 		add_action( 'admin_menu', [ $this, 'addAdminMenu' ] );
 		add_action( 'admin_init', [ $this, 'initSettings' ] );
-		add_action( 'admin_post_wieczo_clamav_scan_file', array( $this, 'scanUploadedFile' ) );
+		add_action( 'admin_post_wieczo_clamav_scan_file', [ $this, 'scanUploadedFile' ] );
+
+		// Scripts for the batch scan
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScripts' ) );
+
+		// AJAX-Handler for the batch scan
+		add_action( 'wp_ajax_batchScan', array( $this, 'handleAjaxBatchScan' ) );
 	}
 
 	/**
@@ -14,11 +25,11 @@ class Settings {
 	 *
 	 * @return void
 	 */
-	public function addAdminMenu() {
+	public function addAdminMenu(): void {
 		// Adds settings page
 		add_menu_page(
-			__( 'ClamAV Scanner Einstellungen', 'wieczos-virus-scanner' ),
-			__( 'ClamAV Einstellungen', 'wieczos-virus-scanner' ),
+			__( 'Scanner Einstellungen', 'wieczos-virus-scanner' ),
+			__( 'Virus Scanner', 'wieczos-virus-scanner' ),
 			'manage_options',
 			'wieczos-virus-scanner',
 			[ $this, 'showSettingsPage' ],
@@ -27,11 +38,20 @@ class Settings {
 
 		add_submenu_page(
 			'wieczos-virus-scanner',    // slug of the main menu
-			__( 'ClamAV Datei-Scanner', 'wieczos-virus-scanner' ),
-			__( 'ClamAV Scanner', 'wieczos-virus-scanner' ),
+			__( 'Einzeldatei-Scanner', 'wieczos-virus-scanner' ),
+			__( 'Datei Scanner', 'wieczos-virus-scanner' ),
 			'manage_options',
 			'wieczos-virus-scanner-test',    // Slug of the submenu
 			array( $this, 'showTestPage' ) // Callback for the page
+		);
+
+		add_submenu_page(
+			'wieczos-virus-scanner',    // slug of the main menu
+			__( 'WordPress Scanner', 'wieczos-virus-scanner' ),
+			__( 'WordPress Scanner', 'wieczos-virus-scanner' ),
+			'manage_options',
+			'full-scan',    // Slug of the submenu
+			array( $this, 'showFullScanPage' ) // Callback for the page
 		);
 
 		add_submenu_page(
@@ -48,7 +68,7 @@ class Settings {
 	 * Displays the settings page for configuration the connection to ClamAV
 	 * @return void
 	 */
-	public function showSettingsPage() {
+	public function showSettingsPage(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html( __( 'Du hast keine Berechtigung für diesen Vorgang.', 'wieczos-virus-scanner' ) ) );
 		}
@@ -72,7 +92,7 @@ class Settings {
 	 *
 	 * @return void
 	 */
-	public function initSettings() {
+	public function initSettings(): void {
 		// Define the settings
 		register_setting( 'wieczo_clamav_options_group', 'clamav_host', [
 			'type'              => 'string',
@@ -126,11 +146,11 @@ class Settings {
 	}
 
 
-	public function settingsCB() {
+	public function settingsCB(): void {
 		echo esc_html( __( 'Hier findest du die ClamAV Verbindungsoptionen', 'wieczos-virus-scanner' ) );
 	}
 
-	public function renderSettingHost() {
+	public function renderSettingHost(): void {
 		$host = esc_attr( get_option( 'clamav_host' ) );
 		?>
         <input type="text" name="clamav_host" value="<?php echo esc_attr( $host ); ?>"/>
@@ -138,7 +158,7 @@ class Settings {
 		<?php
 	}
 
-	public function renderSettingPort() {
+	public function renderSettingPort(): void {
 		$port = (int) get_option( 'clamav_port' );
 		?>
         <input type="text" name="clamav_port" value="<?php echo esc_attr( $port ); ?>"/>
@@ -146,7 +166,7 @@ class Settings {
 		<?php
 	}
 
-	public function renderSettingTimeout() {
+	public function renderSettingTimeout(): void {
 		$timeout = (int) get_option( 'clamav_timeout' );
 		?>
         <input type="text" name="clamav_timeout" value="<?php echo esc_attr( $timeout ); ?>"/>
@@ -154,7 +174,7 @@ class Settings {
 		<?php
 	}
 
-	public function showTestPage() {
+	public function showTestPage(): void {
 		$scanResult = isset( $_GET['scan_result'] ) ? urldecode( sanitize_text_field( wp_unslash( $_GET['scan_result'] ) ) ) : null;
 		// Check only the nonce when it is set, no need to test it on a normal page call.
 		if ( isset( $_GET['_wpnonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'file_check_nonce' ) ) {
@@ -180,7 +200,7 @@ class Settings {
 		<?php
 	}
 
-	public function scanUploadedFile() {
+	public function scanUploadedFile(): void {
 		// Check policies.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html( __( 'Du hast keine Berechtigung für diesen Vorgang.', 'wieczos-virus-scanner' ) ) );
@@ -189,8 +209,9 @@ class Settings {
 			wp_die( esc_html( __( 'Ungültiger Sicherheits-Token', 'wieczos-virus-scanner' ) ) );
 		}
 		// Check if a file was uploaded
-		if ( isset( $_FILES['clamav_file'] ) && isset( $_FILES['clamav_file']['size'] ) && $_FILES['clamav_file']['size'] > 0 ) {
-			$uploaded_file = wp_unslash( $_FILES['clamav_file'] );
+		if ( isset( $_FILES['clamav_file']['size'] ) && $_FILES['clamav_file']['size'] > 0 ) {
+			// phpcs:ignore Can't escape $_FILES. wp_handle_upload takes care of it.
+			$uploaded_file = $_FILES['clamav_file'];
 
 			// Validate file upload status
 			if ( isset( $_FILES['clamav_file']['error'] ) && $_FILES['clamav_file']['error'] !== UPLOAD_ERR_OK ) {
@@ -209,7 +230,7 @@ class Settings {
 					'name'     => basename( $movefile['file'] ),
 				];
 				$scanner   = new Scanner();
-				$scanner->scanFile( $fileArray );
+				$scanner->scanUpload( $fileArray );
 
 				// Show scan results
 				$nonce           = wp_create_nonce( 'file_check_nonce' );
@@ -228,108 +249,112 @@ class Settings {
 		}
 	}
 
-	public function showLogsPage() {
+	public function showLogsPage(): void {
+		$table = new LogsTable();
+		echo '<div class="wrap">';
+		echo '<h1 class="wp-heading-inline">' . esc_html( __( 'Logs', 'wieczos-virus-scanner' ) ) . '</h1>';
+		$table->prepare_items();
+		// Filterformular
+		echo '<form method="get">';
+		echo '<input type="hidden" name="page" value="wieczos-virus-scanner-logs" />';
+		$table->display();
+		echo '</form>';
 
-		global $wpdb;
+		echo '</div>';
+	}
 
-		$tableName = $wpdb->prefix . Config::TABLE_LOGS;
+	public function showFullScanPage(): void {
+		$files = Scanner::collectAllFiles( ABSPATH );
+		?>
+        <div class="wrap">
+            <h1><?php echo esc_html( __( 'Voller WordPress Scan', 'wieczos-virus-scanner' ) ) ?></h1>
+            <p>
+				<?php echo esc_html( __( 'Es werden alle WordPress Dateien nach Viren durchsucht.', 'wieczos-virus-scanner' ) ) ?>
+            </p>
+            <div id="progress-container"
+                 style="width: 100%; background-color: #f3f3f3; border: 1px solid #ddd; padding: 5px;">
+                <div id="progress-bar"
+                     style="width: 0; height: 30px; background-color: #4caf50; text-align: center; line-height: 30px; color: white;">
+                    0%
+                </div>
+            </div>
+            <p id="progress-text"> <?php
+				/* translators: %1$s is replaced with the count of the files which have been already scanned,
+				   %2$s is replaced with the total count of all files
+				*/
+				echo esc_html( sprintf( __( 'Es wurden %1$s von %2$s Dateien gescannt.', 'wieczos-virus-scanner' ), 0, count( $files ) ) )
+				?></p>
+            <button id="start-scan"
+                    class="button button-primary"><?php echo esc_html( __( 'Scan starten', 'wieczos-virus-scanner' ) ) ?></button>
+        </div>
+		<?php
+	}
 
-		// Entries per page
-		$entriesPerPage = 10;
-
-		// Current page
-		// Check if the nonce is set and correct
-		if ( isset( $_GET['_wpnonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'paginate_nonce_action' ) ) {
-			wp_die( esc_html( __( 'Ungültige Paginierungsanfrage.', 'wieczos-virus-scanner' ) ) );
+	public function enqueueScripts( $hook ): void {
+		// Woher kommt  virus-scanner_page_full-scan statt wieczos-virus-scanner_page_full-scan
+		if ( $hook !== 'virus-scanner_page_full-scan' ) {
+			return;
 		}
-		$paged = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
 
-		// Calculate offset
-		$offset = ( $paged - 1 ) * $entriesPerPage;
+		// JavaScript for AJAX Batching
+		wp_enqueue_script( 'full-scan-script', plugins_url( 'assets/js/batch-scan.js', WIECZOS_VIRUS_SCANNER_PLUGIN_DIR ), [ 'jquery' ], '0.1', true );
 
-		// Total Count of entries
-		$cacheKeyTotalItems = 'wieczos-virus-scanner-scan-total-items-' . $entriesPerPage;
-		$totalItems         = wp_cache_get( $cacheKeyTotalItems );
-		if ( false === $totalItems ) {
-			// phpcs:ignore
-			$totalItems = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %s", $tableName ) );
+		// Localized data for the JS
+		$files = Scanner::collectAllFiles( ABSPATH );
+		wp_localize_script( 'full-scan-script', 'batchScanData', [
+			'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
+			'nonce'            => wp_create_nonce( 'wieczos-virus-scanner-batch_scan_nonce' ),
+			'totalFiles'       => count( $files ), // Gesamtzahl der zu scannenden Dateien
+			'localizedStrings' => [
+				/* translators: %1$s is replaced with the count of the files which have been already scanned,
+				   %2$s is replaced with the total count of all files
+				*/
+				'filesScanned' => __( 'Es wurden %1$s von %2$s Dateien gescannt.', 'wieczos-virus-scanner' ),
+				/* translators: %1$s stand for the total of all infected files. */
+				'scanFinished' => __( 'Alle Dateien wurden erfolgreich gescannt! %1$s infizierte Dateien gefunden. Infizierte Dateien sind im Log zu finden.', 'wieczos-virus-scanner' ),
+				'scanError'    => __( 'Es ist ein Fehler beim Scannen aufgetreten!', 'wieczos-virus-scanner' ),
+			]
+		] );
+	}
 
-			// Cache for a minute
-			wp_cache_set( $cacheKeyTotalItems, $totalItems, '', 60 );
-		}
+	public function handleAjaxBatchScan(): void {
+		check_ajax_referer( 'wieczos-virus-scanner-batch_scan_nonce', 'security' );
 
-		// Select the limited data
-		$cacheKeyResults = 'wieczos-virus-scanner-scan-results-' . $entriesPerPage . '-' . $offset;
-		$results         = wp_cache_get( $cacheKeyResults );
-		if ( false === $results ) {
-			// phpcs:ignore
-			$results = $wpdb->get_results( $wpdb->prepare(
-				"SELECT * FROM %s LIMIT %d OFFSET %d",
-				$tableName, $entriesPerPage, $offset
-			) );
+		// Pick the offset from the request (how many files have been handled)
+		$offset        = isset( $_POST['offset'] ) ? intval( $_POST['offset'] ) : 0;
+		$infectedFiles = isset( $_POST['infectedFiles'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['infectedFiles'] ) ) : [];
+		$scanner       = new Scanner();
+		$wordpressRoot = ABSPATH;
+		$files         = $scanner->collectAllFiles( $wordpressRoot );
+		$totalFiles    = count( $files );
 
-			// Cache for a minute
-			wp_cache_set( $cacheKeyResults, $results, '', 60 );
-		}
+		$filesToScan = array_slice( $files, $offset, $this->batchSize );
+		foreach ( $filesToScan as $file ) {
 
-		// Display the table
-		if ( ! empty( $results ) ) {
-			echo '<table class="wp-list-table widefat fixed striped tablesorter">';
-			echo '<thead>
-            <tr>
-                <th>' . esc_html( __( 'ID', 'wieczos-virus-scanner' ) ) . '</th>
-                <th>' . esc_html( __( 'Benutzername', 'wieczos-virus-scanner' ) ) . '</th>
-                <th>' . esc_html( __( 'Dateiname', 'wieczos-virus-scanner' ) ) . '</th>
-                <th>' . esc_html( __( 'Erstellungsdatum', 'wieczos-virus-scanner' ) ) . '</th>
-            </tr>
-          </thead>';
-			echo '<tbody>';
-
-			foreach ( $results as $row ) {
-				// Get user object by login
-				$user = get_user_by( 'login', $row->user_name );
-
-				// Get the user admin link
-				if ( $user ) {
-					$userLink         = get_edit_user_link( $user->ID );
-					$userNameWithLink = '<a href="' . esc_url( $userLink ) . '">' . esc_html( $row->user_name ) . '</a>';
-				} else {
-					// When the user's not found, just display the user_name
-					$userNameWithLink = esc_html( $row->user_name );
-				}
-
-
-				echo '<tr>';
-				echo '<td>' . esc_html( $row->id ) . '</td>';
-				// phpcs:ignore
-				echo '<td>' . $userNameWithLink . '</td>';
-				echo '<td>' . esc_html( $row->filename ) . '</td>';
-				echo '<td>' . esc_html( date_i18n( get_option( 'date_format' ), strtotime( $row->created_at ) ) ) . '</td>';
-				echo '</tr>';
+			if ( $scanner->scanFile( $file, ScanType::WORDPRESS_SCAN, $error ) === true ) {
+				$infectedFiles[] = $file;
 			}
+		}
+		// Work on the next batch
+		$processedFiles = min( $offset + $this->batchSize, $totalFiles );
 
-			echo '</tbody>';
-			echo '</table>';
+		// When all files have been scanned, send the finished statt
+		if ( $processedFiles >= $totalFiles ) {
+			wp_send_json_success( array(
+				'finished'       => true,
+				'processedFiles' => $processedFiles,
+				'infectedFiles'  => $infectedFiles
+			) );
 		} else {
-			echo '<p>' . esc_html( __( 'Keine Daten gefunden.', 'wieczos-virus-scanner' ) ) . '</p>';
+			wp_send_json_success( array(
+				'finished'       => false,
+				'offset'         => $processedFiles,
+				'processedFiles' => $processedFiles,
+				'infectedFiles'  => $infectedFiles,
+			) );
 		}
 
-		// Count total pages
-		$total_pages = ceil( $totalItems / $entriesPerPage );
-
-		// Show pagination links if there are more pages
-		if ( $total_pages > 1 ) {
-			$nonce = wp_create_nonce( 'paginate_nonce_action' );
-			// phpcs:ignore
-			echo paginate_links( [
-				'base'      => add_query_arg( [ 'paged', '%#%', '_wpnonce' => $nonce ] ),
-				'format'    => '?paged=%#%',
-				'current'   => $paged,
-				'total'     => $total_pages,
-				'prev_text' => '« ' . escape_html( __( 'Zurück', 'wieczos-virus-scanner' ) ),
-				'next_text' => escape_html( __( 'Weiter', 'wieczos-virus-scanner' ) ) . ' »',
-			] );
-		}
+		wp_die();
 	}
 }
 

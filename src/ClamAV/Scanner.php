@@ -17,7 +17,30 @@ class Scanner {
 	 *
 	 * @return array Returns the input $file array with the key 'error' when a virus was found.
 	 */
-	public function scanFile( array $file ): array {
+	public function scanUpload( array $file ): array {
+		// Initialisiere WP_Filesystem
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		WP_Filesystem();
+
+		$filepath = $file['tmp_name'];
+
+		if ( $this->scanFile( $filepath, ScanType::UPLOAD_SCAN, $errorMessage ) ) {
+			$file['error'] = $errorMessage;
+		}
+
+		return $file;
+	}
+
+	/**
+	 * @param string $filePath Path to the file to scan
+	 * @param string|null $errorMessage Error Message which occurred when trying to open a socket, read the file or scan it for a virus
+	 *
+	 * @return bool|null Returns true if a virus was found or if an error occurred.
+	 */
+	public function scanFile( string $filePath, ScanType $scanType, ?string &$errorMessage = null ): ?bool {
 		global $wp_filesystem;
 
 		// Initialisiere WP_Filesystem
@@ -27,14 +50,17 @@ class Scanner {
 
 		WP_Filesystem();
 
-		$filepath = $file['tmp_name'];
-		$filename = $file['name'];
+		$path     = $filePath;
+		$filename = basename( $filePath );
+		$error    = null;
 
 		// Check if the file exists
-		if ( ! $wp_filesystem->exists( $filepath ) ) {
-			$file['error'] = __( 'Die hochgeladene Datei konnte nicht gefunden werden.', 'wieczos-virus-scanner' );
+		if ( ! $wp_filesystem->exists( $path ) ) {
+			$error        = UploadError::FILE_NOT_FOUND;
+			$errorMessage = $error->message( $filename );
+			$this->logError( $filePath, $error, $scanType );
 
-			return $file;
+			return null;
 		}
 
 		// Connect to the ClamAV service
@@ -42,9 +68,11 @@ class Scanner {
 		$socket = fsockopen( $this->host, $this->port, $errorCode, $errorMessage, $this->timeout );
 
 		if ( ! $socket ) {
-			$file['error'] = __( 'Konnte keine Verbindung zum Virenscanner herstellen.', 'wieczos-virus-scanner' );
+			$error        = UploadError::CONNECTION_REFUSED;
+			$errorMessage = $error->message( $filename );
+			$this->logError( $filePath, $error, $scanType );
 
-			return $file;
+			return null;
 		}
 
 		// Send the INSTREAM command to ClamAV
@@ -52,13 +80,15 @@ class Scanner {
 		fwrite( $socket, "nINSTREAM\n" );
 
 		// Read the file with WP_Filesystem
-		$handle = $wp_filesystem->get_contents( $filepath );
+		$handle = $wp_filesystem->get_contents( $path );
 		if ( ! $handle ) {
 			// phpcs:ignore
 			fclose( $socket );
-			$file['error'] = __( 'Konnte die hochgeladene Datei nicht lesen.', 'wieczos-virus-scanner' );
+			$error        = UploadError::CANNOT_READ;
+			$errorMessage = $error->message( $filename );
+			$this->logError( $filePath, $error, $scanType );
 
-			return $file;
+			return null;
 		}
 
 		// Send the file in blocks 8192 Bytes to ClamAV
@@ -86,15 +116,26 @@ class Scanner {
 
 		// Überprüfen, ob ein Virus gefunden wurde
 		if ( str_contains( $response, 'FOUND' ) ) {
-			$this->logVirus( $filename );
-			/* translators: %s is replaced with the filename which contains a virus */
-			$file['error'] = sprintf( __( 'Die hochgeladene Datei "%s" ist mit einem Virus infiziert und wurde abgelehnt.', 'wieczos-virus-scanner' ), $filename );
+			$error        = UploadError::VIRUS_FOUND;
+			$errorMessage = $error->message( $filename );
+			$this->logError( $filePath, $error, $scanType );
+
+			return true;
 		}
 
-		return $file;
+		return false;
 	}
 
-	private function logVirus( $filename ) {
+	/**
+	 * Logs the file as having a virus in the database.
+	 *
+	 * @param string $filename File name of the scanned file which contains a virus
+	 * @param UploadError $error
+	 * @param ScanType $scanType
+	 *
+	 * @return void
+	 */
+	private function logError( string $filename, UploadError $error, ScanType $scanType ): void {
 		global $wpdb;
 
 		// Table name
@@ -108,6 +149,8 @@ class Scanner {
 		$data = [
 			'user_name'  => sanitize_text_field( $username ),
 			'filename'   => sanitize_text_field( $filename ),
+			'error_type' => $error->name,
+			'source'     => $scanType->name,
 			'created_at' => current_time( 'mysql' ) // Aktuelles Datum im MySQL-Format
 		];
 
@@ -117,5 +160,28 @@ class Scanner {
 		// Insert data into the table
 		// phpcs:ignore
 		$wpdb->insert( $tableName, $data, $formats );
+	}
+
+	/**
+	 * Scans a directory recursively for files.
+	 *
+	 * @param string $folder Directory to scan recursively
+	 * @param array $results The array to store files in the recursion
+	 *
+	 * @return array         The files found in the given folder
+	 */
+	public static function collectAllFiles( string $folder, array &$results = array() ): array {
+		$files = scandir( $folder );
+
+		foreach ( $files as $value ) {
+			$path = realpath( $folder . DIRECTORY_SEPARATOR . $value );
+			if ( ! is_dir( $path ) && is_readable( $path ) ) {
+				$results[] = $path;
+			} else if ( $value != "." && $value != ".." ) {
+				self::collectAllFiles( $path, $results );
+			}
+		}
+
+		return $results;
 	}
 }
