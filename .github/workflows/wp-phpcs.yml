@@ -84,6 +84,5 @@ jobs:
       - name: Run PHP CodeSniffer
         run: |
           cd wieczos-virus-scanner
-          ./vendor/bin/phpcs --config-set installed_paths ./vendor/wp-coding-standards/wpcs
           ./vendor/bin/phpcs -i
           ./vendor/bin/phpcs --standard=WordPress ./
