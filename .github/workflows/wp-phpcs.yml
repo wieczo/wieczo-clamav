@@ -27,8 +27,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          path: "/wieczo-virus-scanner"
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -64,10 +62,10 @@ jobs:
 
       - name: Install Plugin
         run: |
-          wp plugin activate --path=./wordpress /wieczos-virus-scanner # Aktiviert das Plugin aus dem Repository
+          wp plugin activate --path=./wordpress /home/runner/work/wieczo-clamav/wieczo-clamav # Aktiviert das Plugin aus dem Repository
 
       - name: Run PHP CodeSniffer
         run: |
           ./vendor/bin/phpcs --config-set installed_paths ./vendor/wp-coding-standards/wpcs
           ./vendor/bin/phpcs -i
-          ./vendor/bin/phpcs --standard=WordPress /wieczos-virus-scanner
+          ./vendor/bin/phpcs --standard=WordPress ./
