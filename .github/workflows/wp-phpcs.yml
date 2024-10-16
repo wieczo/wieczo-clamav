@@ -43,7 +43,8 @@ jobs:
 
       - name: Install Composer Dependencies
         run: |
-          if [ -f composer.lock ]; then cd wieczos-virus-scanner; composer install --prefer-dist --no-progress --no-suggest; else composer install; fi
+          cd wieczos-virus-scanner
+          if [ -f composer.lock ]; then composer install --prefer-dist --no-progress --no-suggest; else composer install; fi
 
       - name: Install WP-CLI
         run: |
@@ -82,6 +83,7 @@ jobs:
           
       - name: Run PHP CodeSniffer
         run: |
+          cd wieczos-virus-scanner
           ./vendor/bin/phpcs --config-set installed_paths ./vendor/wp-coding-standards/wpcs
           ./vendor/bin/phpcs -i
           ./vendor/bin/phpcs --standard=WordPress ./
