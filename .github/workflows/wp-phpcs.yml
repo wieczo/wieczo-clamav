@@ -43,7 +43,7 @@ jobs:
 
       - name: Install Composer Dependencies
         run: |
-          if [ -f composer.lock ]; then composer install --prefer-dist --no-progress --no-suggest; else composer install; fi
+          if [ -f composer.lock ]; then cd wieczos-virus-scanner; composer install --prefer-dist --no-progress --no-suggest; else composer install; fi
 
       - name: Install WP-CLI
         run: |
