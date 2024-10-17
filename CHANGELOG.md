@@ -10,8 +10,10 @@ Please add your contribution here, following the format below.
 
 ## Unreleased
 
-* Adds some Open Source documents, like a separate Changelog and a docker-compose.yml.
-* Add your changes here.
+## 1.2.1
+
+* Adds some Open Source documents, like a separate Changelog and RELEASING file.
+* Adds a docker-compose.yml to get started immediatelty
 
 ## 1.2.0
   * Adds full scan of all WordPress files
