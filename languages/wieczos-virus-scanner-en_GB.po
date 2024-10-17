@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Wieczo's Virus Scanner 1.1.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wieczo-clamav\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wieczos-virus-scanner\n"
 "POT-Creation-Date: 2024-10-11T07:53:04+00:00\n"
 "PO-Revision-Date: 2024-10-11 11:10+0200\n"
 "Last-Translator: \n"
@@ -22,8 +22,8 @@ msgstr "Wieczo's Virus Scanner"
 
 #. Plugin URI of the plugin
 #: wieczos-virus-scanner.php
-msgid "https://github.com/wieczo/wieczo-clamav"
-msgstr "https://github.com/wieczo/wieczo-clamav"
+msgid "https://github.com/wieczo/wieczos-virus-scanner"
+msgstr "https://github.com/wieczo/wieczos-virus-scanner"
 
 #. Description of the plugin
 #: wieczos-virus-scanner.php

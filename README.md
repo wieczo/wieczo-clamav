@@ -10,6 +10,7 @@ You're invited to give [readme.txt](readme.txt) a good read, as it's the file th
 
 - **Upload Scan**: Scans uploaded files for viruses and malware.
 - **File Upload**: Individual file check on a user-friendly admin page.
+- **Full Scan**: Scans the whole WordPress installation for viruses and malware.
 - **ClamAV Integration**: Sends files via a socket connection to a ClamAV service for virus scanning.
 - **Easy Configuration**: The host address and port of the ClamAV service is all you need.
 
@@ -52,7 +53,7 @@ sequenceDiagram
 
 ### Manual Installation:
 
-1. Upload the `wieczo-clamav` directory to your WordPress installation's `/wp-content/plugins/` directory.
+1. Upload the `wieczos-virus-scanner` directory to your WordPress installation's `/wp-content/plugins/` directory.
 2. Activate the plugin in the WordPress Admin area under "Plugins."
 3. Configure the ClamAV service under **Settings -> ClamAV Settings** (enter the host and port of the ClamAV service).
 
@@ -88,7 +89,7 @@ Once the plugin is activated, it automatically scans all uploads for viruses.
 1. Clone this repository into the `/wp-content/plugins/` directory of your local WordPress project:
 
 ```bash
-   git clone https://github.com/wieczo/wieczo-clamav.git
+   git clone https://github.com/wieczo/wieczos-virus-scanner.git
 ```
 
 ## Contributions are Welcome!

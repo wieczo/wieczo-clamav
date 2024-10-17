@@ -4,11 +4,13 @@ All notable changes to this project will be documented in this file.
 
 Please add your contribution here, following the format below.
 
-* [#<PR-NUMBER>](https://github.com/wieczo/wieczo-clamav/pull/<PR-NUMBER>): PR Title - [@<github-username>](https://github.com/<github-username>).
+* [#<PR-NUMBER>](https://github.com/wieczo/wieczos-virus-scanner/pull/<PR-NUMBER>): PR Title - [@<github-username>](https://github.com/<github-username>).
 
 ---
 
 ## Unreleased
+
+* Add new features
 
 ## 1.2.1
 
