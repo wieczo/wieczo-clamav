@@ -41,6 +41,7 @@ We want to thank all of our contributors! Here's a list of everyone who has help
 - [Thomas Wieczorek](https://github.com/wieczo) - Project Creator
 - [Simon Neutert](https://github.com/simonneutert) - Always an inspiration and contributes with his thoughts
  and well-spoken arguments.
+
 == Installation ==
 
 === Manual Installation: ===
@@ -55,7 +56,7 @@ After activating the plugin, you can configure the connection information for yo
 
 1. Go to **Settings -> ClamAV Scanner**.
 2. Enter the **Host** and **Port** of your ClamAV service, for example:
-    - **Host**: `127.0.0.1` (if the service is running locally)
+    - **Host**: `127.0.0.1` (if the service is running locally, default: `clamav`)
     - **Port**: `3310` (default port for ClamAV)
 
 3. Optionally, you can set a **Timeout** to define the maximum wait time for the connection to the ClamAV service.
@@ -90,22 +91,24 @@ Once the plugin is activated, it automatically scans all uploads for viruses.
 === Local Development ===
 
 1. Clone this repository into the `/wp-content/plugins/` directory of your local WordPress project:
-   ```bash
+
+```bash
    git clone https://github.com/wieczo/wieczo-clamav.git
+```
 
 == Changelog ==
-
-= 1.0.0 =
-
-Initial release.
-
-= 1.1.0 =
-
-* Adds uninstall.php
-* Adds table to log virus findings
 
 = 1.2.0 =
 
 * Adds full scan of all WordPress files
 * Extends the table to log all errors which happen during a scan
 * Replaces the old standard HTML table with a WP_List_Table to support sorting, multi-actions and more
+
+= 1.1.0 =
+
+* Adds uninstall.php
+* Adds table to log virus findings
+
+= 1.0.0 =
+
+Initial release.
