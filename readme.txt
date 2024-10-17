@@ -16,12 +16,15 @@ A plugin to scan uploaded files for viruses with ClamAV.
 
 Additionally, the plugin sends every upload to ClamAV first. If a virus is found, the upload is aborted.
 
+The plugin also supports scanning your whole WordPress installation for malware and viruses.
+
 The plugin connects to a ClamAV service using the **Host** and **Port** variables configured in the plugin settings.
 
 == Features ==
 
 - **File Upload**: Allows file uploads through a user-friendly admin page.
 - **Upload Scan**: Scans all uploaded files for viruses and malware.
+- **Full Scan**: Separate page to scan the whole WordPress installation for malware and viruses.
 - **ClamAV Integration**: Sends files via a socket connection to a ClamAV service for virus scanning.
 - **Easy Configuration**: Configure the host and port of the ClamAV service in the plugin settings.
 
