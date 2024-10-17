@@ -10,6 +10,7 @@ Please add your contribution here, following the format below.
 
 ## Unreleased
 
+* Enable CI action/workflow that uses [WordPress/plugin-check-action](https://github.com/WordPress/plugin-check-action).
 * Add new features
 
 ## 1.2.1
