@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Wieczo's Virus Scanner
-Plugin URI: https://github.com/wieczo/wieczo-clamav
+Plugin URI: https://github.com/wieczo/wieczos-virus-scanner
 Description: Untersuche hochgeladene Dateien auf Viren und Malware mit ClamAV.
 Version: 1.2.0
 Author: Thomas Wieczorek

@@ -4,14 +4,18 @@ All notable changes to this project will be documented in this file.
 
 Please add your contribution here, following the format below.
 
-* [#<PR-NUMBER>](https://github.com/wieczo/wieczo-clamav/pull/<PR-NUMBER>): PR Title - [@<github-username>](https://github.com/<github-username>).
+* [#<PR-NUMBER>](https://github.com/wieczo/wieczos-virus-scanner/pull/<PR-NUMBER>): PR Title - [@<github-username>](https://github.com/<github-username>).
 
 ---
 
 ## Unreleased
 
-* Adds some Open Source documents, like a separate Changelog and a docker-compose.yml.
-* Add your changes here.
+* Add new features
+
+## 1.2.1
+
+* Adds some Open Source documents, like a separate Changelog and RELEASING file.
+* Adds a docker-compose.yml to get started immediatelty
 
 ## 1.2.0
   * Adds full scan of all WordPress files
